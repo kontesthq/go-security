@@ -1,4 +1,4 @@
-module go-security
+module github.com/ayushs-2k4/go-security
 
 go 1.23.2
 
