@@ -2,110 +2,80 @@ package main
 
 import (
 	"fmt"
-	"net/http"
+	"go-security/internal/auth"
+	"go-security/internal/auth/Store"
+	"golang.org/x/crypto/bcrypt"
+	"log"
+	"time"
 )
 
-type SimpleAuthenticationManager struct {
-}
-
-func NewSimpleAuthenticationManager() *SimpleAuthenticationManager {
-	return &SimpleAuthenticationManager{}
-}
-
-func (sam *SimpleAuthenticationManager) Authenticate(username string, password string) bool {
-	if username == "admin" && password == "admin" {
-		return true
-	}
-
-	return false
-}
-
-type SimpleUserDetailsService struct {
-	// You can add a user store here (e.g., map or database connection)
-	users map[string]User // Mock user store
-}
-
-func NewSimpleUserDetailsService() *SimpleUserDetailsService {
-	return &SimpleUserDetailsService{
-		users: map[string]User{
-			"admin": {
-				Username:              "admin",
-				Password:              "password",
-				Authorities:           []GrantedAuthority{},
-				AccountNonExpired:     true,
-				AccountNonLocked:      true,
-				CredentialsNonExpired: true,
-				Enabled:               true,
-			},
-		},
-	}
-}
-
-// LoadUserByUsername loads a user by username.
-func (suds *SimpleUserDetailsService) LoadUserByUsername(username string) (UserDetails, error) {
-	user, exists := suds.users[username]
-	if !exists {
-		return nil, fmt.Errorf("user not found")
-	}
-	return &user, nil
-}
-
 func main() {
-	fmt.Println("Hello World")
+	email := "user@example.com"
+	password := "password123"
 
-	securityConfig := NewSecurityConfig()
+	jwtSecret := "my_secret"
+	tokenExpiry := 5 * time.Minute
 
-	securityConfig.
-		RequestMatchers("/hello").permitAll().
-		RequestMatchers("/hello2").hasRole("admin").
-		RequestMatchers("/hello3").denyAll()
+	inMemoryUserStore := Store.NewInMemoryUserStore()
+	inMemoryRefreshTokenStore := Store.NewInMemoryRefreshTokenStore()
 
-	mux := http.NewServeMux()
-
-	// Add middleware
-	mux.HandleFunc("GET /hello", HelloGETHandler)
-	mux.HandleFunc("GET /hello2", Hello2GETHandler)
-	mux.HandleFunc("GET /hello3", Hello3GETHandler)
-	mux.HandleFunc("POST /hello", HelloPOSTHandler)
-	mux.HandleFunc("DELETE /hello", HelloDELETEHandler)
-	mux.HandleFunc("PUT /hello", HelloPUTHandler)
-
-	wrappedMux := SecurityMiddleware(securityConfig, NewSimpleUserDetailsService(), MyMiddleware1(MyMiddleware2(mux)))
-
-	server := http.Server{
-		Addr:    ":8080",
-		Handler: wrappedMux,
-	}
-
-	fmt.Println("Server listening at applicationPort: 8080")
-
-	err := server.ListenAndServe()
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		fmt.Println(err)
-		return
+		log.Fatalf("Failed to hash password: %v", err)
 	}
-}
+	inMemoryUserStore.AddUser(email, string(hashedPassword))
 
-func HelloGETHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello, World! GET")
-}
+	// Initialize the PasswordAuth method
+	passwordAuth := auth.NewPasswordAuth(auth.AuthConfig{
+		JwtSecret:   []byte(jwtSecret),
+		TokenExpiry: tokenExpiry,
+	}, inMemoryUserStore)
 
-func Hello2GETHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello2, World! GET")
-}
+	// Authenticate the user
+	isAuthenticated, err := passwordAuth.Authenticate(email, password)
+	if err != nil || !isAuthenticated {
+		log.Fatalf("Authentication failed: %v", err)
+	}
 
-func Hello3GETHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello3, World! GET")
-}
+	// Generate JWT and Refresh Token
+	jwtToken, refreshToken, err := auth.GenerateJWT(email, []byte(jwtSecret), tokenExpiry, inMemoryRefreshTokenStore)
 
-func HelloPOSTHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello, World! POST")
-}
+	log.Printf("Generated JWT: %s\n, refresh Token: %s\n", jwtToken, refreshToken)
 
-func HelloPUTHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello, World! PUT")
-}
+	fmt.Println()
 
-func HelloDELETEHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello, World! DELETE")
+	// Validate the JWT
+	isValid, err := auth.ValidateJWT(jwtToken, []byte(jwtSecret))
+	if err != nil || !isValid {
+		log.Fatalf("Token validation failed: %v", err)
+	}
+
+	// Refreshing the JWT
+	newJWTToken, newRefreshToken, err := auth.RefreshJWT(refreshToken, []byte(jwtSecret), inMemoryRefreshTokenStore)
+	if err != nil {
+		log.Fatalf("Failed to refresh JWT: %v", err)
+	}
+
+	log.Printf("Refreshed Generated JWT: %s\n, Refreshed refresh Token: %s\n", newJWTToken, newRefreshToken)
+
+	fmt.Println()
+
+	// Trying to use old Refresh token to get new JWT Token
+	_, _, err = auth.RefreshJWT(refreshToken, []byte(jwtSecret), inMemoryRefreshTokenStore)
+
+	if err != nil {
+		log.Println("Cannot use old Refresh Token")
+	} else {
+		log.Fatalf("Old Refresh Token is valid!")
+	}
+
+	// Trying to use new Refresh Token
+	newJWTToken, newRefreshToken, err = auth.RefreshJWT(newRefreshToken, []byte(jwtSecret), inMemoryRefreshTokenStore)
+
+	if err != nil {
+		log.Fatalf("Refresh Token validation failed: %v", err)
+	}
+
+	log.Println("Only new Refresh Token works!")
+
 }
