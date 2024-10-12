@@ -259,5 +259,5 @@ package old_code
 //type AuthenticationManager interface {
 //	// Authenticate attempts to authenticate the passed Authentication object,
 //	// returning a fully populated Authentication object (including granted authorities) if successful.
-//	Authenticate(auth Authentication) (Authentication, error)
+//	Authenticate(Auth Authentication) (Authentication, error)
 //}

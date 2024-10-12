@@ -1,4 +1,4 @@
-package auth
+package Auth
 
 import (
 	"github.com/ayushs-2k4/go-security/model"

@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/ayushs-2k4/go-security/internal/auth"
-	"github.com/ayushs-2k4/go-security/internal/auth/Store"
+	Auth2 "github.com/ayushs-2k4/go-security/Auth"
+	Store2 "github.com/ayushs-2k4/go-security/Auth/Store"
 	"golang.org/x/crypto/bcrypt"
 	"log"
 	"time"
@@ -16,8 +16,8 @@ func main() {
 	jwtSecret := "my_secret"
 	tokenExpiry := 5 * time.Minute
 
-	inMemoryUserStore := Store.NewInMemoryUserStore()
-	inMemoryRefreshTokenStore := Store.NewInMemoryRefreshTokenStore()
+	inMemoryUserStore := Store2.NewInMemoryUserStore()
+	inMemoryRefreshTokenStore := Store2.NewInMemoryRefreshTokenStore()
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
@@ -26,7 +26,7 @@ func main() {
 	inMemoryUserStore.AddUser(email, string(hashedPassword))
 
 	// Initialize the PasswordAuth method
-	passwordAuth := auth.NewPasswordAuth(auth.AuthConfig{
+	passwordAuth := Auth2.NewPasswordAuth(Auth2.AuthConfig{
 		JwtSecret:   []byte(jwtSecret),
 		TokenExpiry: tokenExpiry,
 	}, inMemoryUserStore)
@@ -38,20 +38,20 @@ func main() {
 	}
 
 	// Generate JWT and Refresh Token
-	jwtToken, refreshToken, err := auth.GenerateJWT(email, []byte(jwtSecret), tokenExpiry, inMemoryRefreshTokenStore)
+	jwtToken, refreshToken, err := Auth2.GenerateJWT(email, []byte(jwtSecret), tokenExpiry, inMemoryRefreshTokenStore)
 
 	log.Printf("Generated JWT: %s\n, refresh Token: %s\n", jwtToken, refreshToken)
 
 	fmt.Println()
 
 	// Validate the JWT
-	isValid, err := auth.ValidateJWT(jwtToken, []byte(jwtSecret))
+	isValid, err := Auth2.ValidateJWT(jwtToken, []byte(jwtSecret))
 	if err != nil || !isValid {
 		log.Fatalf("Token validation failed: %v", err)
 	}
 
 	// Refreshing the JWT
-	newJWTToken, newRefreshToken, err := auth.RefreshJWT(refreshToken, []byte(jwtSecret), inMemoryRefreshTokenStore)
+	newJWTToken, newRefreshToken, err := Auth2.RefreshJWT(refreshToken, []byte(jwtSecret), inMemoryRefreshTokenStore)
 	if err != nil {
 		log.Fatalf("Failed to refresh JWT: %v", err)
 	}
@@ -61,7 +61,7 @@ func main() {
 	fmt.Println()
 
 	// Trying to use old Refresh token to get new JWT Token
-	_, _, err = auth.RefreshJWT(refreshToken, []byte(jwtSecret), inMemoryRefreshTokenStore)
+	_, _, err = Auth2.RefreshJWT(refreshToken, []byte(jwtSecret), inMemoryRefreshTokenStore)
 
 	if err != nil {
 		log.Println("Cannot use old Refresh Token")
@@ -70,7 +70,7 @@ func main() {
 	}
 
 	// Trying to use new Refresh Token
-	newJWTToken, newRefreshToken, err = auth.RefreshJWT(newRefreshToken, []byte(jwtSecret), inMemoryRefreshTokenStore)
+	newJWTToken, newRefreshToken, err = Auth2.RefreshJWT(newRefreshToken, []byte(jwtSecret), inMemoryRefreshTokenStore)
 
 	if err != nil {
 		log.Fatalf("Refresh Token validation failed: %v", err)

@@ -1,8 +1,8 @@
-package auth
+package Auth
 
 import (
 	"errors"
-	"github.com/ayushs-2k4/go-security/internal/auth/Store"
+	"github.com/ayushs-2k4/go-security/Auth/Store"
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
 	"log"
