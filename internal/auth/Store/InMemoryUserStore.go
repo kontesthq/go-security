@@ -2,7 +2,7 @@ package Store
 
 import (
 	"errors"
-	"go-security/model"
+	"github.com/ayushs-2k4/go-security/model"
 )
 
 // InMemoryUserStore is a simple in-memory implementation of UserStore.

@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"go-security/model"
+	"github.com/ayushs-2k4/go-security/model"
 	"golang.org/x/crypto/bcrypt"
 	"time"
 )

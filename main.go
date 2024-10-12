@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"go-security/internal/auth"
-	"go-security/internal/auth/Store"
+	"github.com/ayushs-2k4/go-security/internal/auth"
+	"github.com/ayushs-2k4/go-security/internal/auth/Store"
 	"golang.org/x/crypto/bcrypt"
 	"log"
 	"time"
