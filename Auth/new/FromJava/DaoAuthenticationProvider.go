@@ -3,11 +3,13 @@ package FromJava
 import (
 	"errors"
 	new2 "github.com/ayushs-2k4/go-security/Auth/new"
+	"github.com/ayushs-2k4/go-security/Auth/new/FromJava/PasswordEncoder"
 	"sync"
 )
 
 type DaoAuthenticationProvider struct {
-	passwordEncoder             new2.PasswordEncoder
+	*AbstractUserDetailsAuthenticationProvider
+	passwordEncoder             PasswordEncoder.PasswordEncoder
 	userDetailsService          new2.UserDetailsService
 	userDetailsPasswordService  UserDetailsPasswordService
 	compromisedPasswordChecker  CompromisedPasswordChecker
@@ -17,13 +19,21 @@ type DaoAuthenticationProvider struct {
 }
 
 // NewDaoAuthenticationProvider initializes the DaoAuthenticationProvider
-func NewDaoAuthenticationProvider(passwordEncoder new2.PasswordEncoder) *DaoAuthenticationProvider {
+func NewDaoAuthenticationProvider(passwordEncoder PasswordEncoder.PasswordEncoder, userDetailsService new2.UserDetailsService, userDetailsPasswordService UserDetailsPasswordService, compromisedPasswordChecker CompromisedPasswordChecker) *DaoAuthenticationProvider {
 	if passwordEncoder == nil {
 		panic("passwordEncoder cannot be nil")
 	}
+
+	// Initialize the embedded abstract provider
+	abstractProvider := NewAbstractUserDetailsAuthenticationProvider()
+
 	return &DaoAuthenticationProvider{
-		passwordEncoder:      passwordEncoder,
-		userNotFoundPassword: "userNotFoundPassword",
+		AbstractUserDetailsAuthenticationProvider: abstractProvider,
+		passwordEncoder:            passwordEncoder,
+		userDetailsService:         userDetailsService,
+		userDetailsPasswordService: userDetailsPasswordService,
+		compromisedPasswordChecker: compromisedPasswordChecker,
+		userNotFoundPassword:       "userNotFoundPassword",
 	}
 }
 
@@ -33,7 +43,15 @@ func (p *DaoAuthenticationProvider) AdditionalAuthenticationChecks(userDetails n
 		return errors.New("no credentials provided")
 	}
 
-	if !p.passwordEncoder.Matches(presentedPassword, userDetails.GetPassword()) {
+	// Call the Matches method and handle the error
+	match, err := p.passwordEncoder.Matches(presentedPassword, userDetails.GetPassword())
+	if err != nil {
+		// Handle potential error during password comparison
+		return err
+	}
+
+	// If passwords don't match, return an error
+	if !match {
 		return errors.New("bad credentials")
 	}
 	return nil
@@ -73,9 +91,18 @@ func (p *DaoAuthenticationProvider) CreateSuccessAuthentication(principal interf
 		return nil, errors.New("the provided password is compromised, please change your password")
 	}
 
-	upgradeEncoding := p.userDetailsPasswordService != nil && p.passwordEncoder.UpgradeEncoding(user.GetPassword())
-	if upgradeEncoding {
-		newPassword, _ := p.passwordEncoder.Encode(presentedPassword)
+	// Handle both the boolean and the error returned by UpgradeEncoding
+	upgradeEncoding, err := p.passwordEncoder.UpgradeEncoding(user.GetPassword())
+	if err != nil {
+		return nil, err // Handle the error
+	}
+
+	// Now check if the encoding should be upgraded and if userDetailsPasswordService is present
+	if upgradeEncoding && p.userDetailsPasswordService != nil {
+		newPassword, err := p.passwordEncoder.Encode(presentedPassword)
+		if err != nil {
+			return nil, err
+		}
 		user = p.userDetailsPasswordService.UpdatePassword(user, newPassword)
 	}
 
@@ -114,22 +141,10 @@ func (p *DaoAuthenticationProvider) SetCompromisedPasswordChecker(compromisedPas
 	p.compromisedPasswordChecker = compromisedPasswordChecker
 }
 
-// Example implementation of a PasswordEncoder
-type SimplePasswordEncoder struct{}
-
-// Encode encodes the password
-func (e *SimplePasswordEncoder) Encode(password string) string {
-	// Implement encoding logic (e.g., hash the password)
-	return password // For demonstration; replace with real hash function
+func (p *DaoAuthenticationProvider) Authenticate(authentication new2.Authentication) (new2.Authentication, *AuthenticationException) {
+	return p.AbstractUserDetailsAuthenticationProvider.Authenticate(authentication)
 }
 
-// Matches checks if the raw password matches the encoded password
-func (e *SimplePasswordEncoder) Matches(rawPassword, encodedPassword string) bool {
-	return rawPassword == encodedPassword // Replace with real check
-}
-
-// UpgradeEncoding checks if the encoding needs to be upgraded
-func (e *SimplePasswordEncoder) UpgradeEncoding(encodedPassword string) bool {
-	// Implement logic to check if encoding needs upgrade
-	return false // For demonstration
+func (p *DaoAuthenticationProvider) Supports(authType new2.Authentication) bool {
+	return p.AbstractUserDetailsAuthenticationProvider.Supports(authType)
 }

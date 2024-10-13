@@ -83,9 +83,9 @@ func (d *DelegatingPasswordEncoder) Encode(rawPassword string) (string, error) {
 }
 
 // Matches checks if the raw password matches the encoded password.
-func (d *DelegatingPasswordEncoder) Matches(rawPassword string, prefixEncodedPassword string) bool {
+func (d *DelegatingPasswordEncoder) Matches(rawPassword string, prefixEncodedPassword string) (bool, error) {
 	if rawPassword == "" && prefixEncodedPassword == "" {
-		return true
+		return true, nil
 	}
 	id := d.extractId(prefixEncodedPassword)
 	delegate, ok := d.idToPasswordEncoder[id]
@@ -130,9 +130,9 @@ func (u *UnmappedIdPasswordEncoder) Encode(rawPassword string) (string, error) {
 }
 
 // Matches always returns false for unmapped ids.
-func (u *UnmappedIdPasswordEncoder) Matches(rawPassword string, encodedPassword string) bool {
+func (u *UnmappedIdPasswordEncoder) Matches(rawPassword string, encodedPassword string) (bool, error) {
 	// For unmapped IDs, we do not check the password; we return false.
-	return false
+	return false, nil
 }
 
 func (u *UnmappedIdPasswordEncoder) UpgradeEncoding(encodedPassword string) (bool, error) {
@@ -161,6 +161,6 @@ func main() {
 	encoded, err := encoder.Encode(rawPassword)
 	fmt.Println("Encoded password:", encoded)
 
-	match := encoder.Matches(rawPassword, encoded)
+	match, err := encoder.Matches(rawPassword, encoded)
 	fmt.Println("Password matches:", match)
 }

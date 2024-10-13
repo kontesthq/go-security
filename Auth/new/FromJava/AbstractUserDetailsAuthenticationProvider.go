@@ -34,31 +34,43 @@ func NewAbstractUserDetailsAuthenticationProvider() *AbstractUserDetailsAuthenti
 }
 
 // Authenticate performs authentication for the given Authentication
-func (p *AbstractUserDetailsAuthenticationProvider) Authenticate(authentication new2.Authentication) (new2.Authentication, error) {
+func (p *AbstractUserDetailsAuthenticationProvider) Authenticate(authentication new2.Authentication) (new2.Authentication, *AuthenticationException) {
 	username := p.DetermineUsername(authentication)
 
 	user, err := p.RetrieveUser(username, authentication)
 	if err != nil {
 		var authenticationException *AuthenticationException
 		if errors.As(err, &authenticationException) && !p.HideUserNotFoundExceptions {
-			return nil, err
+			return nil, authenticationException
 		}
 		return nil, NewAuthenticationExceptionWithoutCause("Bad credentials")
 	}
 	if user == nil {
-		return nil, errors.New("retrieveUser returned nil")
+		return nil, NewAuthenticationExceptionWithoutCause("retrieveUser returned nil")
 	}
 
-	p.PreAuthenticationChecks.Check(user)
+	preAuthError := p.PreAuthenticationChecks.Check(user)
+
+	if preAuthError != nil {
+		return nil, preAuthError
+	}
 
 	if err := p.AdditionalAuthenticationChecks(user, authentication); err != nil {
 		return nil, err
 	}
 
-	p.PostAuthenticationChecks.Check(user)
+	postAuthError := p.PostAuthenticationChecks.Check(user)
+
+	if postAuthError != nil {
+		return nil, postAuthError
+	}
 
 	principalToReturn := user
 	return p.CreateSuccessAuthentication(principalToReturn, authentication, user), nil
+}
+
+func (p *AbstractUserDetailsAuthenticationProvider) Supports(authType new2.Authentication) bool {
+	return true
 }
 
 // DetermineUsername extracts the username from the Authentication
@@ -144,7 +156,7 @@ func (p *AbstractUserDetailsAuthenticationProvider) SetHideUserNotFoundException
 }
 
 // AdditionalAuthenticationChecks should be implemented by subclasses
-func (p *AbstractUserDetailsAuthenticationProvider) AdditionalAuthenticationChecks(userDetails new2.UserDetails, authentication new2.Authentication) error {
+func (p *AbstractUserDetailsAuthenticationProvider) AdditionalAuthenticationChecks(userDetails new2.UserDetails, authentication new2.Authentication) *AuthenticationException {
 	return nil
 }
 
@@ -160,18 +172,18 @@ func NewDefaultPreAuthenticationChecks(logger *log.Logger, messages map[string]s
 }
 
 // Check performs pre-authentication checks on the user
-func (c *DefaultPreAuthenticationChecks) Check(toCheck new2.UserDetails) error {
+func (c *DefaultPreAuthenticationChecks) Check(toCheck new2.UserDetails) *AuthenticationException {
 	if !toCheck.IsAccountNonLocked() {
 		c.logger.Println("Failed to authenticate since user account is locked")
-		return errors.New(c.messages["AbstractUserDetailsAuthenticationProvider.locked"])
+		return NewAuthenticationExceptionWithoutCause(c.messages["AbstractUserDetailsAuthenticationProvider.locked"])
 	}
 	if !toCheck.IsEnabled() {
 		c.logger.Println("Failed to authenticate since user account is disabled")
-		return errors.New(c.messages["AbstractUserDetailsAuthenticationProvider.disabled"])
+		return NewAuthenticationExceptionWithoutCause(c.messages["AbstractUserDetailsAuthenticationProvider.disabled"])
 	}
 	if !toCheck.IsAccountNonExpired() {
 		c.logger.Println("Failed to authenticate since user account has expired")
-		return errors.New(c.messages["AbstractUserDetailsAuthenticationProvider.expired"])
+		return NewAuthenticationExceptionWithoutCause(c.messages["AbstractUserDetailsAuthenticationProvider.expired"])
 	}
 	return nil
 }
@@ -188,10 +200,10 @@ func NewDefaultPostAuthenticationChecks(logger *log.Logger, messages map[string]
 }
 
 // Check performs post-authentication checks on the user
-func (c *DefaultPostAuthenticationChecks) Check(toCheck new2.UserDetails) error {
+func (c *DefaultPostAuthenticationChecks) Check(toCheck new2.UserDetails) *AuthenticationException {
 	if !toCheck.IsCredentialsNonExpired() {
 		c.logger.Println("Failed to authenticate since user account credentials have expired")
-		return errors.New(c.messages["AbstractUserDetailsAuthenticationProvider.credentialsExpired"])
+		return NewAuthenticationExceptionWithoutCause(c.messages["AbstractUserDetailsAuthenticationProvider.credentialsExpired"])
 	}
 	return nil
 }

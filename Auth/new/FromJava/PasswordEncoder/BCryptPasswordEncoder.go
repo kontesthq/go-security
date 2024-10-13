@@ -89,19 +89,19 @@ func (b *BCryptPasswordEncoder) Encode(rawPassword string) (string, error) {
 }
 
 // Matches checks if the provided raw password matches the stored hashed password.
-func (b *BCryptPasswordEncoder) Matches(rawPassword, encodedPassword string) bool {
+func (b *BCryptPasswordEncoder) Matches(rawPassword, encodedPassword string) (bool, error) {
 	if rawPassword == "" {
 		panic(errors.New("rawPassword cannot be empty"))
 	}
 	if encodedPassword == "" {
 		b.logger.Println("Empty encoded password")
-		return false
+		return false, errors.New("empty encoded password")
 	}
 	if !b.BCRYPT_PATTERN.MatchString(encodedPassword) {
 		b.logger.Println("Encoded password does not look like BCrypt")
-		return false
+		return false, errors.New("encoded password does not look like BCrypt")
 	}
-	return bcrypt.CompareHashAndPassword([]byte(encodedPassword), []byte(rawPassword)) == nil
+	return bcrypt.CompareHashAndPassword([]byte(encodedPassword), []byte(rawPassword)) == nil, nil
 }
 
 // UpgradeEncoding checks if the provided encoded password needs to be rehashed.

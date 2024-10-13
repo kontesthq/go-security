@@ -1,6 +1,8 @@
 package new
 
-import "errors"
+import (
+	"errors"
+)
 
 // UsernamePasswordAuthenticationToken represents an Authentication implementation for a username/password.
 type UsernamePasswordAuthenticationToken struct {
@@ -10,7 +12,7 @@ type UsernamePasswordAuthenticationToken struct {
 }
 
 // NewUsernamePasswordAuthenticationToken creates a new unauthenticated token with principal and credentials.
-func NewUsernamePasswordAuthenticationToken(principal, credentials interface{}) *UsernamePasswordAuthenticationToken {
+func NewUsernamePasswordAuthenticationToken(principal interface{}, credentials interface{}) *UsernamePasswordAuthenticationToken {
 	return &UsernamePasswordAuthenticationToken{
 		AbstractAuthenticationToken: *NewAbstractAuthenticationToken(nil),
 		principal:                   principal,
@@ -19,7 +21,7 @@ func NewUsernamePasswordAuthenticationToken(principal, credentials interface{}) 
 }
 
 // NewAuthenticatedUsernamePasswordAuthenticationToken creates a new authenticated token with authorities.
-func NewAuthenticatedUsernamePasswordAuthenticationToken(principal, credentials interface{}, authorities []GrantedAuthority) *UsernamePasswordAuthenticationToken {
+func NewAuthenticatedUsernamePasswordAuthenticationToken(principal interface{}, credentials interface{}, authorities []GrantedAuthority) *UsernamePasswordAuthenticationToken {
 	token := &UsernamePasswordAuthenticationToken{
 		AbstractAuthenticationToken: *NewAbstractAuthenticationToken(authorities),
 		principal:                   principal,
@@ -30,7 +32,7 @@ func NewAuthenticatedUsernamePasswordAuthenticationToken(principal, credentials 
 }
 
 // Authenticated creates an authenticated UsernamePasswordAuthenticationToken.
-func (u *UsernamePasswordAuthenticationToken) Authenticated(principal, credentials interface{}, authorities []GrantedAuthority) *UsernamePasswordAuthenticationToken {
+func (u *UsernamePasswordAuthenticationToken) Authenticated(principal interface{}, credentials interface{}, authorities []GrantedAuthority) *UsernamePasswordAuthenticationToken {
 	return NewAuthenticatedUsernamePasswordAuthenticationToken(principal, credentials, authorities)
 }
 

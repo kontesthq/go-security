@@ -14,8 +14,8 @@ func (n *NoOpPasswordEncoder) Encode(rawPassword string) (string, error) {
 }
 
 // Matches checks if the raw password matches the encoded password.
-func (n *NoOpPasswordEncoder) Matches(rawPassword, encodedPassword string) bool {
-	return rawPassword == encodedPassword
+func (n *NoOpPasswordEncoder) Matches(rawPassword, encodedPassword string) (bool, error) {
+	return rawPassword == encodedPassword, nil
 }
 
 func (n *NoOpPasswordEncoder) UpgradeEncoding(encodedPassword string) (bool, error) {

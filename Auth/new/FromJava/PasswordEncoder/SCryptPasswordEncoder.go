@@ -76,12 +76,12 @@ func (s *SCryptPasswordEncoder) Encode(rawPassword string) (string, error) {
 	return fmt.Sprintf("$%s$%s$%s", params, encodedSalt, encodedDerived), nil
 }
 
-func (s *SCryptPasswordEncoder) Matches(rawPassword, encodedPassword string) bool {
+func (s *SCryptPasswordEncoder) Matches(rawPassword, encodedPassword string) (bool, error) {
 	if len(encodedPassword) < s.keyLength {
 		s.logger.Println("Empty encoded password")
-		return false
+		return false, errors.New("empty encoded password")
 	}
-	return s.decodeAndCheckMatches(rawPassword, encodedPassword)
+	return s.decodeAndCheckMatches(rawPassword, encodedPassword), nil
 }
 
 // UpgradeEncoding checks if the encoding parameters are lower than the current parameters.

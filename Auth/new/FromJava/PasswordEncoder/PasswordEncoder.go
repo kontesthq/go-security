@@ -6,7 +6,7 @@ package PasswordEncoder
 type PasswordEncoder interface {
 	Encode(rawPassword string) (string, error)
 
-	Matches(rawPassword, encodedPassword string) bool
+	Matches(rawPassword, encodedPassword string) (bool, error)
 
 	UpgradeEncoding(encodedPassword string) (bool, error)
 }
