@@ -4,20 +4,15 @@ import (
 	"github.com/ayushs-2k4/go-security/model"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
-	"time"
 )
 
 type UsernamePasswordAuth struct {
-	jwtSecret   []byte
-	tokenExpiry time.Duration
-	userStore   model.UserStore
+	userStore model.UserStore
 }
 
-func NewPasswordAuth(authConfig AuthConfig, userStore model.UserStore) *UsernamePasswordAuth {
+func NewPasswordAuth(userStore model.UserStore) *UsernamePasswordAuth {
 	return &UsernamePasswordAuth{
-		jwtSecret:   []byte(authConfig.JwtSecret),
-		tokenExpiry: authConfig.TokenExpiry,
-		userStore:   userStore,
+		userStore: userStore,
 	}
 }
 

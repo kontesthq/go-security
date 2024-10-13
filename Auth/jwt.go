@@ -6,6 +6,7 @@ import (
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
 	"log"
+	"net/http"
 	"time"
 )
 
@@ -106,4 +107,32 @@ func invalidateOldRefreshToken(refreshToken string, refreshTokenStore Store.Refr
 		log.Println("Failed to delete old refresh token")
 		return
 	}
+}
+
+// ************************************************************************ //
+
+type JWTAuth struct {
+	secret []byte
+}
+
+func NewJWTAuth(secret []byte) *JWTAuth {
+	return &JWTAuth{
+		secret: secret,
+	}
+}
+
+func (j *JWTAuth) Authenticate(w http.ResponseWriter, r *http.Request) (bool, error) {
+	// Extract the JWT from the Authorization header
+	tokenString := r.Header.Get("Authorization")
+	if tokenString == "" {
+		return false, errors.New("missing Authorization header")
+	}
+
+	// Validate the JWT
+	isValid, err := ValidateJWT(tokenString, j.secret)
+	if err != nil {
+		return false, err
+	}
+
+	return isValid, nil
 }
