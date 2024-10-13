@@ -7,6 +7,8 @@ type AbstractAuthenticationToken struct {
 	authorities   []GrantedAuthority
 	details       interface{}
 	authenticated bool
+	principal     interface{}
+	credentials   interface{}
 }
 
 // NewAbstractAuthenticationToken creates a new AbstractAuthenticationToken.
@@ -19,6 +21,16 @@ func NewAbstractAuthenticationToken(authorities []GrantedAuthority) *AbstractAut
 // GetAuthorities returns the authorities granted to the principal.
 func (a *AbstractAuthenticationToken) GetAuthorities() []GrantedAuthority {
 	return a.authorities
+}
+
+// GetCredentials returns the credentials that prove the identity of the principal.
+func (a *AbstractAuthenticationToken) GetCredentials() interface{} {
+	return a.credentials
+}
+
+// GetPrincipal returns the identity of the principal being authenticated.
+func (a *AbstractAuthenticationToken) GetPrincipal() interface{} {
+	return a.principal
 }
 
 // GetDetails returns additional details about the authentication request.

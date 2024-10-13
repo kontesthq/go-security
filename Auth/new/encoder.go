@@ -8,6 +8,7 @@ import (
 type PasswordEncoder interface {
 	Encode(rawPassword string) (string, error)
 	Matches(rawPassword, encodedPassword string) bool
+	UpgradeEncoding(encodedPassword string) bool
 }
 
 // BCryptPasswordEncoder is an implementation of PasswordEncoder using BCrypt.
