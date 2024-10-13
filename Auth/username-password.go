@@ -3,6 +3,7 @@ package Auth
 import (
 	"github.com/ayushs-2k4/go-security/model"
 	"golang.org/x/crypto/bcrypt"
+	"net/http"
 	"time"
 )
 
@@ -20,7 +21,11 @@ func NewPasswordAuth(authConfig AuthConfig, userStore model.UserStore) *Username
 	}
 }
 
-func (p *UsernamePasswordAuth) Authenticate(username, password string) (bool, error) {
+func (p *UsernamePasswordAuth) Authenticate(w http.ResponseWriter, r *http.Request) (bool, error) {
+	// For simplicity, we use query params (use headers/body for actual cases).
+	username := ObtainUsernameFromHeader(r)
+	password := ObtainPasswordFromHeader(r)
+
 	user, err := p.userStore.FindUserByUsername(username)
 
 	if err != nil || user == nil {
@@ -34,4 +39,12 @@ func (p *UsernamePasswordAuth) Authenticate(username, password string) (bool, er
 	}
 
 	return true, nil
+}
+
+func ObtainUsernameFromHeader(r *http.Request) string {
+	return r.Header.Get("X-Username")
+}
+
+func ObtainPasswordFromHeader(r *http.Request) string {
+	return r.Header.Get("X-Password")
 }

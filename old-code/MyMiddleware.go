@@ -18,7 +18,7 @@ package old_code
 //			case RoleRequired:
 //				usernamePasswordAuthenticationToken := NewUsernamePasswordAuthenticationToken("admin", "admin")
 //
-//				user, err := authenticationManager.Authenticate(usernamePasswordAuthenticationToken)
+//				user, err := authenticationManager.authenticate(usernamePasswordAuthenticationToken)
 //				if err != nil {
 //					return
 //				}

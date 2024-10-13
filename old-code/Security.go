@@ -257,7 +257,7 @@ package old_code
 //
 //// AuthenticationManager defines the interface for authentication management.
 //type AuthenticationManager interface {
-//	// Authenticate attempts to authenticate the passed Authentication object,
+//	// authenticate attempts to authenticate the passed Authentication object,
 //	// returning a fully populated Authentication object (including granted authorities) if successful.
-//	Authenticate(Auth Authentication) (Authentication, error)
+//	authenticate(Auth Authentication) (Authentication, error)
 //}

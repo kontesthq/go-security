@@ -1,13 +1,14 @@
 package Auth
 
-import "errors"
+import (
+	"errors"
+	"net/http"
+)
 
 var (
 	ErrInvalidCredentials = errors.New("invalid credentials")
 )
 
 type AuthMethod interface {
-	Authenticate(username, password string) (bool, error) // returns true if successful
-	//RefreshToken(token string) (string, string, error)              // returns new JWT token and refresh token
-	//ValidateToken(token string) (string, error)                     // validates JWT token
+	Authenticate(w http.ResponseWriter, r *http.Request) (bool, error) // returns true if successful
 }

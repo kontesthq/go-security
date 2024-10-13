@@ -13,7 +13,7 @@ package old_code
 //	return &SimpleAuthenticationManager{}
 //}
 //
-//func (sam *SimpleAuthenticationManager) Authenticate(username string, password string) bool {
+//func (sam *SimpleAuthenticationManager) authenticate(username string, password string) bool {
 //	if username == "admin" && password == "admin" {
 //		return true
 //	}
