@@ -16,7 +16,6 @@ func getInMemoryUserStore() *Store.InMemoryUserStore {
 	password := "password123"
 
 	inMemoryUserStore := Store.NewInMemoryUserStore()
-	//inMemoryRefreshTokenStore := Store.NewInMemoryRefreshTokenStore()
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
@@ -39,7 +38,9 @@ func main() {
 	jwtAuth := Auth.NewJWTAuth([]byte(jwtSecret))
 
 	authChain := Auth.NewAuthChain(jwtAuth, usernamePasswordAuth)
-	authChain.AddSkipPath("/login")
+
+	// Add a skip path
+	authChain.AddSkipPath("^/login(/.*)?$")
 
 	router := http.NewServeMux()
 	router.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {

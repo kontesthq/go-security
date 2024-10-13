@@ -4,28 +4,50 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"regexp"
 )
 
 type AuthChain struct {
 	authMethods []AuthMethod
-	skipPath    []string
+	skipPaths   []*regexp.Regexp
 }
 
 func NewAuthChain(authMethods ...AuthMethod) *AuthChain {
 	return &AuthChain{
 		authMethods: authMethods,
-		skipPath:    make([]string, 0),
+		skipPaths:   make([]*regexp.Regexp, 0),
 	}
 }
 
-func (c *AuthChain) AddSkipPath(path string) {
-	c.skipPath = append(c.skipPath, path)
+// AddSkipPath allows adding regex patterns for paths that should skip authentication
+func (c *AuthChain) AddSkipPath(path string) error {
+	// convert to regex
+	regexPath, err := regexp.Compile(path)
+
+	if err != nil {
+		return err
+	}
+
+	c.skipPaths = append(c.skipPaths, regexPath)
+	return nil
+}
+
+// AddSkipPaths allows adding multiple regex patterns for paths that should skip authentication
+func (c *AuthChain) AddSkipPaths(paths ...string) error {
+	for _, regexPath := range paths {
+		err := c.AddSkipPath(regexPath)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (c *AuthChain) authenticate(w http.ResponseWriter, r *http.Request) error {
 	// Check if the request path is in the skip paths
-	for _, skipPath := range c.skipPath {
-		if r.URL.Path == skipPath {
+	for _, skipPath := range c.skipPaths {
+		if skipPath.MatchString(r.URL.Path) {
 			return nil // Skip authentication for this path
 		}
 	}
