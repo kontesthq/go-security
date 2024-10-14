@@ -1,4 +1,4 @@
-package new
+package FromJava
 
 // UserDetails represents user information for authentication
 type UserDetails interface {

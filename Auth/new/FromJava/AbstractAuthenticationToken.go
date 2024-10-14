@@ -1,13 +1,17 @@
-package new
+package FromJava
 
-import "errors"
+import (
+	"errors"
+	"fmt"
+	"hash/fnv"
+)
 
 // AbstractAuthenticationToken is a base implementation for Authentication objects.
 type AbstractAuthenticationToken struct {
 	authorities   []GrantedAuthority
 	details       interface{}
 	authenticated bool
-	principal     interface{}
+	principal     string
 	credentials   interface{}
 }
 
@@ -29,7 +33,7 @@ func (a *AbstractAuthenticationToken) GetCredentials() interface{} {
 }
 
 // GetPrincipal returns the identity of the principal being authenticated.
-func (a *AbstractAuthenticationToken) GetPrincipal() interface{} {
+func (a *AbstractAuthenticationToken) GetPrincipal() string {
 	return a.principal
 }
 
@@ -61,4 +65,33 @@ func (a *AbstractAuthenticationToken) SetAuthenticated(isAuthenticated bool) err
 // EraseCredentials erases the credentials (if any).
 func (a *AbstractAuthenticationToken) EraseCredentials() {
 	// Implement credential erasure logic here if required.
+}
+
+// Equals compares this Principal to another object.
+func (a *AbstractAuthenticationToken) Equals(another string) bool {
+	return another == a.principal
+}
+
+// String returns a string representation of this Principal.
+func (a *AbstractAuthenticationToken) String() string {
+	return fmt.Sprintf("Principal: %v", a.GetName())
+}
+
+// HashCode returns a hash code for this Principal.
+func (a *AbstractAuthenticationToken) HashCode() int {
+	h := fnv.New32a()
+	h.Write([]byte(a.GetName())) // Hash the name of the principal
+	return int(h.Sum32())
+}
+
+// GetName returns the name of this Principal.
+func (a *AbstractAuthenticationToken) GetName() string {
+	return a.principal
+}
+
+// Implies checks if the specified subject is implied by this Principal.
+func (a *AbstractAuthenticationToken) Implies(subject Subject) bool {
+	// Implement logic for checking if this Principal implies the given subject.
+	// This is a placeholder; the implementation will depend on your Subject definition.
+	return false
 }

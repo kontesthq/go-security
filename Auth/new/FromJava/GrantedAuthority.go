@@ -1,4 +1,4 @@
-package new
+package FromJava
 
 // GrantedAuthority represents a role or authority granted to a user.
 type GrantedAuthority interface {

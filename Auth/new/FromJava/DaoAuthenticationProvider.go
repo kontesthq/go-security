@@ -2,7 +2,6 @@ package FromJava
 
 import (
 	"errors"
-	new2 "github.com/ayushs-2k4/go-security/Auth/new"
 	"github.com/ayushs-2k4/go-security/Auth/new/FromJava/PasswordEncoder"
 	"sync"
 )
@@ -10,7 +9,7 @@ import (
 type DaoAuthenticationProvider struct {
 	*AbstractUserDetailsAuthenticationProvider
 	passwordEncoder             PasswordEncoder.PasswordEncoder
-	userDetailsService          new2.UserDetailsService
+	userDetailsService          UserDetailsService
 	userDetailsPasswordService  UserDetailsPasswordService
 	compromisedPasswordChecker  CompromisedPasswordChecker
 	userNotFoundEncodedPassword string
@@ -19,7 +18,7 @@ type DaoAuthenticationProvider struct {
 }
 
 // NewDaoAuthenticationProvider initializes the DaoAuthenticationProvider
-func NewDaoAuthenticationProvider(passwordEncoder PasswordEncoder.PasswordEncoder, userDetailsService new2.UserDetailsService, userDetailsPasswordService UserDetailsPasswordService, compromisedPasswordChecker CompromisedPasswordChecker) *DaoAuthenticationProvider {
+func NewDaoAuthenticationProvider(passwordEncoder PasswordEncoder.PasswordEncoder, userDetailsService UserDetailsService, userDetailsPasswordService UserDetailsPasswordService, compromisedPasswordChecker CompromisedPasswordChecker) *DaoAuthenticationProvider {
 	if passwordEncoder == nil {
 		panic("passwordEncoder cannot be nil")
 	}
@@ -38,7 +37,7 @@ func NewDaoAuthenticationProvider(passwordEncoder PasswordEncoder.PasswordEncode
 }
 
 // AdditionalAuthenticationChecks checks additional authentication requirements
-func (p *DaoAuthenticationProvider) AdditionalAuthenticationChecks(userDetails new2.UserDetails, presentedPassword string) error {
+func (p *DaoAuthenticationProvider) AdditionalAuthenticationChecks(userDetails UserDetails, presentedPassword string) error {
 	if presentedPassword == "" {
 		return errors.New("no credentials provided")
 	}
@@ -66,7 +65,7 @@ func (p *DaoAuthenticationProvider) DoAfterPropertiesSet() error {
 }
 
 // RetrieveUser loads the user by username
-func (p *DaoAuthenticationProvider) RetrieveUser(username string) (new2.UserDetails, error) {
+func (p *DaoAuthenticationProvider) RetrieveUser(username string) (UserDetails, error) {
 	p.prepareTimingAttackProtection()
 
 	loadedUser, err := p.userDetailsService.LoadUserByUsername(username)
@@ -81,7 +80,7 @@ func (p *DaoAuthenticationProvider) RetrieveUser(username string) (new2.UserDeta
 }
 
 // CreateSuccessAuthentication creates successful authentication result
-func (p *DaoAuthenticationProvider) CreateSuccessAuthentication(principal interface{}, presentedPassword string, user new2.UserDetails) (interface{}, error) {
+func (p *DaoAuthenticationProvider) CreateSuccessAuthentication(principal string, presentedPassword string, user UserDetails) (interface{}, error) {
 	isPasswordCompromised := false
 	if p.compromisedPasswordChecker != nil {
 		isPasswordCompromised = p.compromisedPasswordChecker.Check(presentedPassword).compromised
@@ -127,7 +126,7 @@ func (p *DaoAuthenticationProvider) MitigateAgainstTimingAttack(presentedPasswor
 }
 
 // SetUserDetailsService sets the UserDetailsService
-func (p *DaoAuthenticationProvider) SetUserDetailsService(userDetailsService new2.UserDetailsService) {
+func (p *DaoAuthenticationProvider) SetUserDetailsService(userDetailsService UserDetailsService) {
 	p.userDetailsService = userDetailsService
 }
 
@@ -141,10 +140,10 @@ func (p *DaoAuthenticationProvider) SetCompromisedPasswordChecker(compromisedPas
 	p.compromisedPasswordChecker = compromisedPasswordChecker
 }
 
-func (p *DaoAuthenticationProvider) Authenticate(authentication new2.Authentication) (new2.Authentication, *AuthenticationException) {
+func (p *DaoAuthenticationProvider) Authenticate(authentication Authentication) (Authentication, *AuthenticationException) {
 	return p.AbstractUserDetailsAuthenticationProvider.Authenticate(authentication)
 }
 
-func (p *DaoAuthenticationProvider) Supports(authType new2.Authentication) bool {
+func (p *DaoAuthenticationProvider) Supports(authType Authentication) bool {
 	return p.AbstractUserDetailsAuthenticationProvider.Supports(authType)
 }

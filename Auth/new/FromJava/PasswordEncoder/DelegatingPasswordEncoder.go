@@ -3,6 +3,9 @@ package PasswordEncoder
 import (
 	"errors"
 	"fmt"
+	"github.com/ayushs-2k4/go-security/Auth/new/FromJava/PasswordEncoder/argon2"
+	"github.com/ayushs-2k4/go-security/Auth/new/FromJava/PasswordEncoder/bcrypt"
+	"github.com/ayushs-2k4/go-security/Auth/new/FromJava/PasswordEncoder/scrypt"
 	"strings"
 )
 
@@ -10,10 +13,23 @@ import (
 type DelegatingPasswordEncoder struct {
 	idPrefix                         string
 	idSuffix                         string
-	idForEncode                      string
+	IdForEncode                      string
 	passwordEncoderForEncode         PasswordEncoder
 	idToPasswordEncoder              map[string]PasswordEncoder
 	defaultPasswordEncoderForMatches PasswordEncoder
+}
+
+func GetPasswordEncoders() map[string]PasswordEncoder {
+	idToPasswordEncoder := map[string]PasswordEncoder{
+		"bcrypt": bcrypt.NewBCryptPasswordEncoderWithStrength(10), // Implement BCryptPasswordEncoder
+		"noop":   NewNoOpPasswordEncoder(),                        // Implement NoOpPasswordEncoder
+		//"pbkdf2":             &Pbkdf2PasswordEncoder{},  // Implement Pbkdf2PasswordEncoder
+		"scrypt": scrypt.NewSCryptPasswordEncoder(), // Implement SCryptPasswordEncoder
+		//"sha256":             &StandardPasswordEncoder{}, // Implement StandardPasswordEncoder
+		"argon2": argon2.NewArgon2PasswordEncoder(),
+	}
+
+	return idToPasswordEncoder
 }
 
 // NewDelegatingPasswordEncoder creates a new instance of DelegatingPasswordEncoder.
@@ -24,7 +40,7 @@ func NewDelegatingPasswordEncoder(idForEncode string, idToPasswordEncoder map[st
 // NewDelegatingPasswordEncoderWithCustomPrefixSuffix creates a new instance with custom prefix and suffix.
 func NewDelegatingPasswordEncoderWithCustomPrefixSuffix(idForEncode string, idToPasswordEncoder map[string]PasswordEncoder, idPrefix string, idSuffix string) (*DelegatingPasswordEncoder, error) {
 	if idForEncode == "" {
-		return nil, errors.New("idForEncode cannot be empty")
+		return nil, errors.New("IdForEncode cannot be empty")
 	}
 	if idPrefix == "" {
 		return nil, errors.New("prefix cannot be empty")
@@ -36,7 +52,7 @@ func NewDelegatingPasswordEncoderWithCustomPrefixSuffix(idForEncode string, idTo
 		return nil, fmt.Errorf("idPrefix %s cannot contain idSuffix %s", idPrefix, idSuffix)
 	}
 	if _, ok := idToPasswordEncoder[idForEncode]; !ok {
-		return nil, fmt.Errorf("idForEncode %s is not found in idToPasswordEncoder", idForEncode)
+		return nil, fmt.Errorf("IdForEncode %s is not found in idToPasswordEncoder", idForEncode)
 	}
 
 	for id := range idToPasswordEncoder {
@@ -53,7 +69,7 @@ func NewDelegatingPasswordEncoderWithCustomPrefixSuffix(idForEncode string, idTo
 	return &DelegatingPasswordEncoder{
 		idPrefix:                         idPrefix,
 		idSuffix:                         idSuffix,
-		idForEncode:                      idForEncode,
+		IdForEncode:                      idForEncode,
 		passwordEncoderForEncode:         idToPasswordEncoder[idForEncode],
 		idToPasswordEncoder:              idToPasswordEncoder,
 		defaultPasswordEncoderForMatches: &UnmappedIdPasswordEncoder{},
@@ -65,6 +81,7 @@ func (d *DelegatingPasswordEncoder) SetDefaultPasswordEncoderForMatches(encoder 
 	if encoder == nil {
 		return errors.New("defaultPasswordEncoderForMatches cannot be nil")
 	}
+
 	d.defaultPasswordEncoderForMatches = encoder
 	return nil
 }
@@ -78,7 +95,7 @@ func (d *DelegatingPasswordEncoder) Encode(rawPassword string) (string, error) {
 	}
 
 	// Construct the final encoded string with prefixes and suffixes.
-	finalEncodedPassword := fmt.Sprintf("%s%s%s%s", d.idPrefix, d.idForEncode, d.idSuffix, encodedPassword)
+	finalEncodedPassword := fmt.Sprintf("%s%s%s%s", d.idPrefix, d.IdForEncode, d.idSuffix, encodedPassword)
 	return finalEncodedPassword, nil // Return the final encoded string and nil for no error.
 }
 
@@ -87,7 +104,7 @@ func (d *DelegatingPasswordEncoder) Matches(rawPassword string, prefixEncodedPas
 	if rawPassword == "" && prefixEncodedPassword == "" {
 		return true, nil
 	}
-	id := d.extractId(prefixEncodedPassword)
+	id := d.ExtractId(prefixEncodedPassword)
 	delegate, ok := d.idToPasswordEncoder[id]
 	if !ok {
 		return d.defaultPasswordEncoderForMatches.Matches(rawPassword, prefixEncodedPassword)
@@ -96,8 +113,8 @@ func (d *DelegatingPasswordEncoder) Matches(rawPassword string, prefixEncodedPas
 	return delegate.Matches(rawPassword, encodedPassword)
 }
 
-// extractId extracts the id from the prefix-encoded password.
-func (d *DelegatingPasswordEncoder) extractId(prefixEncodedPassword string) string {
+// ExtractId extracts the id from the prefix-encoded password.
+func (d *DelegatingPasswordEncoder) ExtractId(prefixEncodedPassword string) string {
 	if prefixEncodedPassword == "" {
 		return ""
 	}
@@ -114,53 +131,29 @@ func (d *DelegatingPasswordEncoder) extractId(prefixEncodedPassword string) stri
 
 // extractEncodedPassword extracts the encoded password from the prefix-encoded password.
 func (d *DelegatingPasswordEncoder) extractEncodedPassword(prefixEncodedPassword string) string {
-	id := d.extractId(prefixEncodedPassword)
+	id := d.ExtractId(prefixEncodedPassword)
 	if id == "" {
 		return prefixEncodedPassword
 	}
 	return prefixEncodedPassword[len(d.idPrefix)+len(id)+len(d.idSuffix):]
 }
 
-// UnmappedIdPasswordEncoder is a default encoder for unmapped ids.
-type UnmappedIdPasswordEncoder struct{}
+func (d *DelegatingPasswordEncoder) UpgradeEncoding(prefixEncodedPassword string) bool {
+	id := d.ExtractId(prefixEncodedPassword)
+	if !strings.EqualFold(d.IdForEncode, id) {
+		return true
+	} else {
+		encodedPassword := d.extractEncodedPassword(prefixEncodedPassword)
 
-// Encode does nothing and returns the raw password.
-func (u *UnmappedIdPasswordEncoder) Encode(rawPassword string) (string, error) {
-	return rawPassword, nil
-}
+		encoder, exists := d.idToPasswordEncoder[id]
 
-// Matches always returns false for unmapped ids.
-func (u *UnmappedIdPasswordEncoder) Matches(rawPassword string, encodedPassword string) (bool, error) {
-	// For unmapped IDs, we do not check the password; we return false.
-	return false, nil
-}
+		if exists {
+			hasEncodingUpgraded, _ := encoder.UpgradeEncoding(encodedPassword)
 
-func (u *UnmappedIdPasswordEncoder) UpgradeEncoding(encodedPassword string) (bool, error) {
-	return false, nil
-}
-
-// Example usage (implementations of PasswordEncoder needed for real usage).
-func main() {
-	// Example usage
-	idForEncode := "bcrypt"
-	idToPasswordEncoder := map[string]PasswordEncoder{
-		idForEncode: &BCryptPasswordEncoder{}, // Implement BCryptPasswordEncoder
-		"noop":      &NoOpPasswordEncoder{},   // Implement NoOpPasswordEncoder
-		//"pbkdf2":             &Pbkdf2PasswordEncoder{},  // Implement Pbkdf2PasswordEncoder
-		"scrypt": &SCryptPasswordEncoder{}, // Implement SCryptPasswordEncoder
-		//"sha256":             &StandardPasswordEncoder{}, // Implement StandardPasswordEncoder
+			return hasEncodingUpgraded
+		}
 	}
 
-	encoder, err := NewDelegatingPasswordEncoder(idForEncode, idToPasswordEncoder)
-	if err != nil {
-		fmt.Println("Error creating DelegatingPasswordEncoder:", err)
-		return
-	}
-
-	rawPassword := "password"
-	encoded, err := encoder.Encode(rawPassword)
-	fmt.Println("Encoded password:", encoded)
-
-	match, err := encoder.Matches(rawPassword, encoded)
-	fmt.Println("Password matches:", match)
+	// If the encoder does not exist, return false
+	return false
 }

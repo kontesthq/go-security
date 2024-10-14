@@ -2,7 +2,6 @@ package FromJava
 
 import (
 	"fmt"
-	new2 "github.com/ayushs-2k4/go-security/Auth/new"
 	"log"
 	"reflect"
 )
@@ -26,11 +25,11 @@ func NewProviderManager(providers []AuthenticationProvider, parent Authenticatio
 	}
 }
 
-func (pm *ProviderManager) Authenticate(authentication new2.Authentication) (new2.Authentication, error) {
+func (pm *ProviderManager) Authenticate(authentication Authentication) (Authentication, error) {
 	var lastException *AuthenticationException
 	var parentException *AuthenticationException
-	var result new2.Authentication
-	var parentResult new2.Authentication
+	var result Authentication
+	var parentResult Authentication
 
 	currentPosition := 0
 	size := len(pm.providers)
@@ -55,7 +54,7 @@ func (pm *ProviderManager) Authenticate(authentication new2.Authentication) (new
 
 	if result == nil && pm.parent != nil {
 		// Allow the parent to try.
-		parentResult = pm.parent.Authenticate(authentication)
+		parentResult, _ := pm.parent.Authenticate(authentication)
 		if parentResult != nil {
 			result = parentResult
 		}
@@ -83,8 +82,8 @@ func (pm *ProviderManager) Authenticate(authentication new2.Authentication) (new
 	return nil, lastException
 }
 
-func (pm *ProviderManager) copyDetails(source, dest new2.Authentication) {
-	if token, ok := dest.(*new2.AbstractAuthenticationToken); ok && dest.GetDetails() == nil {
+func (pm *ProviderManager) copyDetails(source, dest Authentication) {
+	if token, ok := dest.(*AbstractAuthenticationToken); ok && dest.GetDetails() == nil {
 		token.SetDetails(source.GetDetails())
 	}
 }
@@ -108,11 +107,11 @@ func (n *NullEventPublisher) SetDefaultAuthenticationFailureEvent(eventClass ref
 }
 
 // PublishAuthenticationFailure does nothing when called.
-func (n *NullEventPublisher) PublishAuthenticationFailure(exception *AuthenticationException, authentication new2.Authentication) {
+func (n *NullEventPublisher) PublishAuthenticationFailure(exception *AuthenticationException, authentication Authentication) {
 	// No operation
 }
 
 // PublishAuthenticationSuccess does nothing when called.
-func (n *NullEventPublisher) PublishAuthenticationSuccess(authentication new2.Authentication) {
+func (n *NullEventPublisher) PublishAuthenticationSuccess(authentication Authentication) {
 	// No operation
 }

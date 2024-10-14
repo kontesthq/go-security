@@ -2,7 +2,6 @@ package FromJava
 
 import (
 	"errors"
-	new2 "github.com/ayushs-2k4/go-security/Auth/new"
 	"log"
 	"os"
 )
@@ -34,7 +33,7 @@ func NewAbstractUserDetailsAuthenticationProvider() *AbstractUserDetailsAuthenti
 }
 
 // Authenticate performs authentication for the given Authentication
-func (p *AbstractUserDetailsAuthenticationProvider) Authenticate(authentication new2.Authentication) (new2.Authentication, *AuthenticationException) {
+func (p *AbstractUserDetailsAuthenticationProvider) Authenticate(authentication Authentication) (Authentication, *AuthenticationException) {
 	username := p.DetermineUsername(authentication)
 
 	user, err := p.RetrieveUser(username, authentication)
@@ -66,30 +65,25 @@ func (p *AbstractUserDetailsAuthenticationProvider) Authenticate(authentication 
 	}
 
 	principalToReturn := user
-	return p.CreateSuccessAuthentication(principalToReturn, authentication, user), nil
+	return p.CreateSuccessAuthentication(principalToReturn.GetUsername(), authentication, user), nil
 }
 
-func (p *AbstractUserDetailsAuthenticationProvider) Supports(authType new2.Authentication) bool {
+func (p *AbstractUserDetailsAuthenticationProvider) Supports(authType Authentication) bool {
 	return true
 }
 
 // DetermineUsername extracts the username from the Authentication
-func (p *AbstractUserDetailsAuthenticationProvider) DetermineUsername(authentication new2.Authentication) string {
-	if authentication.GetPrincipal() == nil {
+func (p *AbstractUserDetailsAuthenticationProvider) DetermineUsername(authentication Authentication) string {
+	// Check if the principal is not nil
+	if authentication.GetPrincipal() == "" {
 		return "NONE_PROVIDED"
 	}
 
-	// Assert that the principal is of type User to get the username
-	if principal, ok := authentication.GetPrincipal().(Principal); ok {
-		return principal.GetName()
-	}
-
-	// Return a fallback if principal doesn't implement the Principal interface
-	return "UNKNOWN"
+	return authentication.GetPrincipal()
 }
 
 // CreateSuccessAuthentication creates a successful Authentication object
-func (p *AbstractUserDetailsAuthenticationProvider) CreateSuccessAuthentication(principal interface{}, authentication new2.Authentication, user new2.UserDetails) new2.Authentication {
+func (p *AbstractUserDetailsAuthenticationProvider) CreateSuccessAuthentication(principal string, authentication Authentication, user UserDetails) Authentication {
 	// Ensure we return the original credentials the user supplied,
 	// so subsequent attempts are successful even with encoded passwords.
 	// Also ensure we return the original getDetails(), so that future
@@ -99,7 +93,7 @@ func (p *AbstractUserDetailsAuthenticationProvider) CreateSuccessAuthentication(
 
 	authorities := authentication.GetAuthorities()
 
-	authToken := (&new2.UsernamePasswordAuthenticationToken{}).Authenticated(principal, credentials, authorities)
+	authToken := (&UsernamePasswordAuthenticationToken{}).Authenticated(principal, credentials, authorities)
 
 	authToken.SetDetails(authentication.GetDetails())
 
@@ -146,7 +140,7 @@ Throws:
     (generally a BadCredentialsException, an AuthenticationServiceException, or
     UsernameNotFoundException).
 */
-func (p *AbstractUserDetailsAuthenticationProvider) RetrieveUser(username string, authentication new2.Authentication) (new2.UserDetails, error) {
+func (p *AbstractUserDetailsAuthenticationProvider) RetrieveUser(username string, authentication Authentication) (UserDetails, error) {
 	return nil, errors.New("not implemented")
 }
 
@@ -156,7 +150,7 @@ func (p *AbstractUserDetailsAuthenticationProvider) SetHideUserNotFoundException
 }
 
 // AdditionalAuthenticationChecks should be implemented by subclasses
-func (p *AbstractUserDetailsAuthenticationProvider) AdditionalAuthenticationChecks(userDetails new2.UserDetails, authentication new2.Authentication) *AuthenticationException {
+func (p *AbstractUserDetailsAuthenticationProvider) AdditionalAuthenticationChecks(userDetails UserDetails, authentication Authentication) *AuthenticationException {
 	return nil
 }
 
@@ -172,7 +166,7 @@ func NewDefaultPreAuthenticationChecks(logger *log.Logger, messages map[string]s
 }
 
 // Check performs pre-authentication checks on the user
-func (c *DefaultPreAuthenticationChecks) Check(toCheck new2.UserDetails) *AuthenticationException {
+func (c *DefaultPreAuthenticationChecks) Check(toCheck UserDetails) *AuthenticationException {
 	if !toCheck.IsAccountNonLocked() {
 		c.logger.Println("Failed to authenticate since user account is locked")
 		return NewAuthenticationExceptionWithoutCause(c.messages["AbstractUserDetailsAuthenticationProvider.locked"])
@@ -200,7 +194,7 @@ func NewDefaultPostAuthenticationChecks(logger *log.Logger, messages map[string]
 }
 
 // Check performs post-authentication checks on the user
-func (c *DefaultPostAuthenticationChecks) Check(toCheck new2.UserDetails) *AuthenticationException {
+func (c *DefaultPostAuthenticationChecks) Check(toCheck UserDetails) *AuthenticationException {
 	if !toCheck.IsCredentialsNonExpired() {
 		c.logger.Println("Failed to authenticate since user account credentials have expired")
 		return NewAuthenticationExceptionWithoutCause(c.messages["AbstractUserDetailsAuthenticationProvider.credentialsExpired"])

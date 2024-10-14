@@ -1,4 +1,4 @@
-package PasswordEncoder
+package bcrypt
 
 import (
 	"errors"

@@ -1,10 +1,9 @@
-package PasswordEncoder
+package scrypt
 
 import (
 	"crypto/rand"
 	"crypto/subtle"
 	"encoding/base64"
-	"encoding/hex"
 	"errors"
 	"fmt"
 	"golang.org/x/crypto/scrypt"
@@ -31,7 +30,18 @@ type SCryptPasswordEncoder struct {
 	logger      *log.Logger
 }
 
-func NewSCryptPasswordEncoder(cpuCost, memoryCost, parallelization, keyLength, saltLength int) (*SCryptPasswordEncoder, error) {
+func NewSCryptPasswordEncoder() *SCryptPasswordEncoder {
+	return &SCryptPasswordEncoder{
+		cpuCost:     DefaultCpuCost,
+		memoryCost:  DefaultMemoryCost,
+		parallelism: DefaultParallelism,
+		keyLength:   DefaultKeyLength,
+		saltLength:  DefaultSaltLength,
+		logger:      log.Default(),
+	}
+}
+
+func NewSCryptPasswordEncoderWithValues(cpuCost, memoryCost, parallelization, keyLength, saltLength int) (*SCryptPasswordEncoder, error) {
 	if cpuCost <= 1 {
 		return nil, errors.New("Cpu cost parameter must be > 1.")
 	}
@@ -62,26 +72,27 @@ func NewSCryptPasswordEncoder(cpuCost, memoryCost, parallelization, keyLength, s
 	}, nil
 }
 
-func (s *SCryptPasswordEncoder) Encode(rawPassword string) (string, error) {
-	salt := generateRandomBytes(s.saltLength)
-	derivedKey, err := scrypt.Key([]byte(rawPassword), salt, s.cpuCost, s.memoryCost, s.parallelism, s.keyLength)
+func (encoder *SCryptPasswordEncoder) Encode(rawPassword string) (string, error) {
+	salt := generateRandomBytes(encoder.saltLength)
+	derivedKey, err := scrypt.Key([]byte(rawPassword), salt, encoder.cpuCost, encoder.memoryCost, encoder.parallelism, encoder.keyLength)
 	if err != nil {
 		return "", err
 	}
 
-	params := fmt.Sprintf("%x", ((int(math.Log2(float64(s.cpuCost))) << 16) | (s.memoryCost << 8) | s.parallelism))
+	// Encode parameters to a single hex string
+	params := fmt.Sprintf("%x", (int(math.Log2(float64(encoder.cpuCost)))<<16)|(encoder.memoryCost<<8)|encoder.parallelism)
 	encodedSalt := encodeBase64(salt)
 	encodedDerived := encodeBase64(derivedKey)
 
 	return fmt.Sprintf("$%s$%s$%s", params, encodedSalt, encodedDerived), nil
 }
 
-func (s *SCryptPasswordEncoder) Matches(rawPassword, encodedPassword string) (bool, error) {
-	if len(encodedPassword) < s.keyLength {
-		s.logger.Println("Empty encoded password")
+func (encoder *SCryptPasswordEncoder) Matches(rawPassword, encodedPassword string) (bool, error) {
+	if len(encodedPassword) < encoder.keyLength {
+		encoder.logger.Println("Empty encoded password")
 		return false, errors.New("empty encoded password")
 	}
-	return s.decodeAndCheckMatches(rawPassword, encodedPassword), nil
+	return encoder.decodeAndCheckMatches(rawPassword, encodedPassword), nil
 }
 
 // UpgradeEncoding checks if the encoding parameters are lower than the current parameters.
@@ -107,24 +118,29 @@ func (encoder *SCryptPasswordEncoder) UpgradeEncoding(encodedPassword string) (b
 	return cpuCost < encoder.cpuCost || memoryCost < encoder.memoryCost || parallelization < encoder.parallelism, nil
 }
 
-func (s *SCryptPasswordEncoder) decodeAndCheckMatches(rawPassword, encodedPassword string) bool {
+// decodeAndCheckMatches checks if the rawPassword matches the encodedPassword.
+func (encoder *SCryptPasswordEncoder) decodeAndCheckMatches(rawPassword, encodedPassword string) bool {
 	parts := strings.Split(encodedPassword, "$")
 	if len(parts) != 4 {
 		return false
 	}
 
-	params, _ := hex.DecodeString(parts[1])
-	salt, _ := decodeBase64(parts[2])
-	derived, _ := decodeBase64(parts[3])
+	params, err := strconv.ParseUint(parts[1], 16, 64)
+	salt, err := decodeBase64(parts[2])
+	derived, err := decodeBase64(parts[3])
 
-	cpuCost := int(math.Pow(2, float64(uint32(params[0])>>16&0xffff)))
-	memoryCost := int(params[0] >> 8 & 0xff)
-	parallelization := int(params[0] & 0xff)
+	cpuCost := int(math.Pow(2, float64(params>>16&0xffff)))
+	memoryCost := int(params >> 8 & 0xff)
+	parallelization := int(params & 0xff)
 
-	generated, err := scrypt.Key([]byte(rawPassword), salt, cpuCost, memoryCost, parallelization, s.keyLength)
+	// Generate the derived key using scrypt
+	generated, err := scrypt.Key([]byte(rawPassword), salt, cpuCost, memoryCost, parallelization, encoder.keyLength)
+
 	if err != nil {
 		return false
 	}
+
+	// Compare the derived key with the generated key
 	return subtle.ConstantTimeCompare(derived, generated) == 1
 }
 

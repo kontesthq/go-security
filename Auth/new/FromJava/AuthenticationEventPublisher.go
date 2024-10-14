@@ -2,15 +2,14 @@ package FromJava
 
 import (
 	"fmt"
-	new2 "github.com/ayushs-2k4/go-security/Auth/new"
 	"log"
 	"reflect"
 )
 
 // AuthenticationEventPublisher defines an interface for publishing authentication events.
 type AuthenticationEventPublisher interface {
-	PublishAuthenticationSuccess(authentication new2.Authentication)
-	PublishAuthenticationFailure(exception *AuthenticationException, authentication new2.Authentication)
+	PublishAuthenticationSuccess(authentication Authentication)
+	PublishAuthenticationFailure(exception *AuthenticationException, authentication Authentication)
 	SetApplicationEventPublisher(publisher ApplicationEventPublisher)
 	SetAdditionalExceptionMappings(mappings map[reflect.Type]reflect.Type)
 	SetDefaultAuthenticationFailureEvent(eventClass reflect.Type)
@@ -48,7 +47,7 @@ func NewDefaultAuthenticationEventPublisher(publisher ApplicationEventPublisher)
 }
 
 // PublishAuthenticationSuccess publishes a successful authentication event.
-func (d *DefaultAuthenticationEventPublisher) PublishAuthenticationSuccess(authentication new2.Authentication) {
+func (d *DefaultAuthenticationEventPublisher) PublishAuthenticationSuccess(authentication Authentication) {
 	if d.applicationEventPublisher != nil {
 		event := &AuthenticationSuccessEvent{Authentication: authentication}
 		d.applicationEventPublisher.PublishEvent(event)
@@ -56,7 +55,7 @@ func (d *DefaultAuthenticationEventPublisher) PublishAuthenticationSuccess(authe
 }
 
 // PublishAuthenticationFailure publishes a failed authentication event.
-func (d *DefaultAuthenticationEventPublisher) PublishAuthenticationFailure(exception AuthenticationException, authentication new2.Authentication) {
+func (d *DefaultAuthenticationEventPublisher) PublishAuthenticationFailure(exception AuthenticationException, authentication Authentication) {
 	constructor := d.getEventConstructor(exception)
 	var event AbstractAuthenticationEvent
 
@@ -119,12 +118,12 @@ type ApplicationEventPublisher interface {
 //type Authentication struct{}
 
 type AbstractAuthenticationEvent struct {
-	Authentication new2.Authentication
+	Authentication Authentication
 	Exception      AuthenticationException
 }
 
 type AuthenticationSuccessEvent struct {
-	Authentication new2.Authentication
+	Authentication Authentication
 }
 
 type BadCredentialsException struct{}

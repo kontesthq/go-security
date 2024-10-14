@@ -1,5 +1,10 @@
 package PasswordEncoder
 
+import (
+	"github.com/ayushs-2k4/go-security/Auth/new/FromJava/PasswordEncoder/bcrypt"
+	"github.com/ayushs-2k4/go-security/Auth/new/FromJava/PasswordEncoder/scrypt"
+)
+
 type PasswordEncoderFactories struct {
 }
 
@@ -12,9 +17,9 @@ type PasswordEncoderFactories struct {
 func (p *PasswordEncoderFactories) CreateDelegatingPasswordEncoder() (*DelegatingPasswordEncoder, error) {
 	encodingId := "bcrypt"
 	encoders := map[string]PasswordEncoder{
-		encodingId: new(BCryptPasswordEncoder),
+		encodingId: new(bcrypt.BCryptPasswordEncoder),
 		"noop":     new(NoOpPasswordEncoder),
-		"scrypt":   new(SCryptPasswordEncoder),
+		"scrypt":   new(scrypt.SCryptPasswordEncoder),
 		// Add other encoders as needed.
 	}
 
