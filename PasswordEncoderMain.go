@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/ayushs-2k4/go-security/Auth/new/FromJava/PasswordEncoder"
+	"github.com/ayushs-2k4/go-security/Auth/FromJava/PasswordEncoder"
 )
 
 // Example usage (implementations of PasswordEncoder needed for real usage).

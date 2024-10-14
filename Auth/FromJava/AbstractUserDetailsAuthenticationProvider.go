@@ -160,7 +160,7 @@ type DefaultPreAuthenticationChecks struct {
 	messages map[string]string
 }
 
-// NewDefaultPreAuthenticationChecks creates a new instance of DefaultPreAuthenticationChecks
+// NewDefaultPreAuthenticationChecks creates a New instance of DefaultPreAuthenticationChecks
 func NewDefaultPreAuthenticationChecks(logger *log.Logger, messages map[string]string) *DefaultPreAuthenticationChecks {
 	return &DefaultPreAuthenticationChecks{logger: logger, messages: messages}
 }
@@ -188,7 +188,7 @@ type DefaultPostAuthenticationChecks struct {
 	messages map[string]string
 }
 
-// NewDefaultPostAuthenticationChecks creates a new instance of DefaultPostAuthenticationChecks
+// NewDefaultPostAuthenticationChecks creates a New instance of DefaultPostAuthenticationChecks
 func NewDefaultPostAuthenticationChecks(logger *log.Logger, messages map[string]string) *DefaultPostAuthenticationChecks {
 	return &DefaultPostAuthenticationChecks{logger: logger, messages: messages}
 }

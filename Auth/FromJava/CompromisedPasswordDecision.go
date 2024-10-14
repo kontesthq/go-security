@@ -4,7 +4,7 @@ type CompromisedPasswordDecision struct {
 	compromised bool
 }
 
-// NewCompromisedPasswordDecision creates a new instance of CompromisedPasswordDecision.
+// NewCompromisedPasswordDecision creates a New instance of CompromisedPasswordDecision.
 func NewCompromisedPasswordDecision(compromised bool) *CompromisedPasswordDecision {
 	return &CompromisedPasswordDecision{
 		compromised: compromised,

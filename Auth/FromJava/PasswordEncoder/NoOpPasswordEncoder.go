@@ -3,7 +3,7 @@ package PasswordEncoder
 // NoOpPasswordEncoder is a PasswordEncoder that performs no encoding.
 type NoOpPasswordEncoder struct{}
 
-// NewNoOpPasswordEncoder creates a new instance of NoOpPasswordEncoder.
+// NewNoOpPasswordEncoder creates a New instance of NoOpPasswordEncoder.
 func NewNoOpPasswordEncoder() *NoOpPasswordEncoder {
 	return &NoOpPasswordEncoder{}
 }

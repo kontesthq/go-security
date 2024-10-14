@@ -65,7 +65,7 @@ func ValidateJWT(tokenString string, secret []byte) (bool, error) {
 
 // GenerateRefreshToken generates a simple UUID as a refresh token.
 func GenerateRefreshToken(subject string, refreshTokenStore Store.RefreshTokenStore) (string, error) {
-	// Generate a new UUID for the refresh token
+	// Generate a New UUID for the refresh token
 	refreshToken := uuid.New().String()
 
 	// Store the refresh token along with the associated subject
@@ -84,13 +84,13 @@ func RefreshJWT(refreshTokenString string, secret []byte, refreshTokenStore Stor
 		return "", "", errors.New("invalid refresh token")
 	}
 
-	// Generate new JWT
+	// Generate New JWT
 	newJWT, err := generateJWTOnly(username, secret, time.Hour*72) // Adjust the expiry time as needed
 	if err != nil {
 		return "", "", err // Propagate the error if JWT generation fails
 	}
 
-	// Generate a new refresh token
+	// Generate a New refresh token
 	newRefreshToken, err := GenerateRefreshToken(username, refreshTokenStore)
 	if err != nil {
 		return "", "", err // Propagate the error if refresh token generation fails

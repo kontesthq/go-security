@@ -3,13 +3,19 @@ package main
 import (
 	"errors"
 	"fmt"
-	"github.com/ayushs-2k4/go-security/Auth/new/FromJava/PasswordEncoder"
+	"github.com/ayushs-2k4/go-security/Auth/FromJava/PasswordEncoder"
 	"log"
 	"net/http"
 )
 
 var userDatabase = map[string]string{ // Mock user database
 	"ayushs_2k4": "anjubanke",
+}
+
+// MyUserDetails interface defines methods to get user information.
+type MyUserDetails interface {
+	GetUsername() string
+	GetPassword() string
 }
 
 type MyUserDetailsImpl struct {
@@ -65,12 +71,6 @@ func main() {
 	fmt.Println("Authentication is successful")
 
 	fmt.Printf("FinalMap: %v\n", userDatabase)
-}
-
-// MyUserDetails interface defines methods to get user information.
-type MyUserDetails interface {
-	GetUsername() string
-	GetPassword() string
 }
 
 type UsernamePasswordAuthenticationMethod struct {

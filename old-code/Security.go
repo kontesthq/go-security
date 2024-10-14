@@ -28,14 +28,14 @@ package old_code
 //	matchers map[string]*AuthorizationManagerRequestMatcherRegistry
 //}
 //
-//// NewSecurityConfig creates a new instance of SecurityConfig.
+//// NewSecurityConfig creates a New instance of SecurityConfig.
 //func NewSecurityConfig() *SecurityConfig {
 //	return &SecurityConfig{
 //		matchers: make(map[string]*AuthorizationManagerRequestMatcherRegistry),
 //	}
 //}
 //
-//// RequestMatchers creates a new AbstractRequestMatcherRegistry.
+//// RequestMatchers creates a New AbstractRequestMatcherRegistry.
 //func (sc *SecurityConfig) RequestMatchers(pattern string) *AuthorizationManagerRequestMatcherRegistry {
 //	if ac, exists := sc.matchers[pattern]; exists {
 //		// If a matcher already exists for this pattern, return it for modification

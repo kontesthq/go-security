@@ -30,32 +30,32 @@ type BCryptPasswordEncoder struct {
 	random         *rand.Rand     // Secure random instance to use
 }
 
-// NewBCryptPasswordEncoder creates a new instance of BCryptPasswordEncoder with the specified strength.
+// NewBCryptPasswordEncoder creates a New instance of BCryptPasswordEncoder with the specified strength.
 func NewBCryptPasswordEncoder() *BCryptPasswordEncoder {
 	return NewBCryptPasswordEncoderWithStrength(-1)
 }
 
-// NewBCryptPasswordEncoderWithStrength creates a new instance of BCryptPasswordEncoder with specified strength.
+// NewBCryptPasswordEncoderWithStrength creates a New instance of BCryptPasswordEncoder with specified strength.
 func NewBCryptPasswordEncoderWithStrength(strength int) *BCryptPasswordEncoder {
 	return NewBCryptPasswordEncoderWithVersionAndStrength(BCryptVersion2A, strength, nil)
 }
 
-// NewBCryptPasswordEncoderWithVersion creates a new instance of BCryptPasswordEncoder with specified version.
+// NewBCryptPasswordEncoderWithVersion creates a New instance of BCryptPasswordEncoder with specified version.
 func NewBCryptPasswordEncoderWithVersion(version BCryptVersion) *BCryptPasswordEncoder {
 	return NewBCryptPasswordEncoderWithVersionAndStrength(version, -1, nil)
 }
 
-// NewBCryptPasswordEncoderWithVersionAndRandom creates a new instance with the specified version and a secure random instance.
+// NewBCryptPasswordEncoderWithVersionAndRandom creates a New instance with the specified version and a secure random instance.
 func NewBCryptPasswordEncoderWithVersionAndRandom(version BCryptVersion, random *rand.Rand) *BCryptPasswordEncoder {
 	return NewBCryptPasswordEncoderWithVersionAndStrength(version, -1, random)
 }
 
-// NewBCryptPasswordEncoderWithStrengthAndRandom creates a new instance with the specified strength and a secure random instance.
+// NewBCryptPasswordEncoderWithStrengthAndRandom creates a New instance with the specified strength and a secure random instance.
 func NewBCryptPasswordEncoderWithStrengthAndRandom(strength int, random *rand.Rand) *BCryptPasswordEncoder {
 	return NewBCryptPasswordEncoderWithVersionAndStrength(BCryptVersion2A, strength, random)
 }
 
-// NewBCryptPasswordEncoderWithVersionAndStrength creates a new instance with the specified version and strength.
+// NewBCryptPasswordEncoderWithVersionAndStrength creates a New instance with the specified version and strength.
 func NewBCryptPasswordEncoderWithVersionAndStrength(version BCryptVersion, strength int, random *rand.Rand) *BCryptPasswordEncoder {
 	if strength != -1 && (strength < 4 || strength > 31) {
 		panic(errors.New("Bad strength: must be between 4 and 31"))

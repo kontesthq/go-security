@@ -15,7 +15,7 @@ type AbstractAuthenticationToken struct {
 	credentials   interface{}
 }
 
-// NewAbstractAuthenticationToken creates a new AbstractAuthenticationToken.
+// NewAbstractAuthenticationToken creates a New AbstractAuthenticationToken.
 func NewAbstractAuthenticationToken(authorities []GrantedAuthority) *AbstractAuthenticationToken {
 	return &AbstractAuthenticationToken{
 		authorities: authorities,

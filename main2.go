@@ -3,8 +3,8 @@ package main
 import (
 	"errors"
 	"fmt"
-	"github.com/ayushs-2k4/go-security/Auth/new/FromJava"
-	"github.com/ayushs-2k4/go-security/Auth/new/FromJava/PasswordEncoder/bcrypt"
+	FromJava2 "github.com/ayushs-2k4/go-security/Auth/FromJava"
+	"github.com/ayushs-2k4/go-security/Auth/FromJava/PasswordEncoder/bcrypt"
 	"log"
 )
 
@@ -12,7 +12,7 @@ import (
 type MyUserDetails2 struct {
 	username              string
 	password              string
-	authorities           []FromJava.GrantedAuthority
+	authorities           []FromJava2.GrantedAuthority
 	accountNonExpired     bool
 	accountNonLocked      bool
 	credentialsNonExpired bool
@@ -20,7 +20,7 @@ type MyUserDetails2 struct {
 }
 
 // NewMyUserDetails is a constructor for MyUserDetails2
-func NewMyUserDetails(username, password string, authorities []FromJava.GrantedAuthority, accountNonExpired, accountNonLocked, credentialsNonExpired, enabled bool) *MyUserDetails2 {
+func NewMyUserDetails(username, password string, authorities []FromJava2.GrantedAuthority, accountNonExpired, accountNonLocked, credentialsNonExpired, enabled bool) *MyUserDetails2 {
 	return &MyUserDetails2{
 		username:              username,
 		password:              password,
@@ -33,7 +33,7 @@ func NewMyUserDetails(username, password string, authorities []FromJava.GrantedA
 }
 
 // GetAuthorities returns the authorities granted to the user
-func (u *MyUserDetails2) GetAuthorities() []FromJava.GrantedAuthority {
+func (u *MyUserDetails2) GetAuthorities() []FromJava2.GrantedAuthority {
 	return u.authorities
 }
 
@@ -71,13 +71,13 @@ type MyUserDetailsService struct {
 }
 
 // LoadUserByUsername loads user details by username
-func (m *MyUserDetailsService) LoadUserByUsername(username string) (FromJava.UserDetails, error) {
+func (m *MyUserDetailsService) LoadUserByUsername(username string) (FromJava2.UserDetails, error) {
 	if username == "user@example.com" {
 		// Creating a sample authority for the user
-		authority := &FromJava.SimpleGrantedAuthority{Authority: "ROLE_USER"}
+		authority := &FromJava2.SimpleGrantedAuthority{Authority: "ROLE_USER"}
 
-		// Create and return a new MyUserDetails2 instance
-		return NewMyUserDetails(username, "This is Password", []FromJava.GrantedAuthority{authority}, true, true, true, true), nil
+		// Create and return a New MyUserDetails2 instance
+		return NewMyUserDetails(username, "This is Password", []FromJava2.GrantedAuthority{authority}, true, true, true, true), nil
 	}
 
 	// Return an error if the username is not found
@@ -88,19 +88,19 @@ func main() {
 
 	//userDetailsService := &MyUserDetailsService{}
 
-	daoAuthenticationProvider := FromJava.NewDaoAuthenticationProvider(bcrypt.NewBCryptPasswordEncoder(), nil, nil, nil)
+	daoAuthenticationProvider := FromJava2.NewDaoAuthenticationProvider(bcrypt.NewBCryptPasswordEncoder(), nil, nil, nil)
 
-	authenticationProviders := []FromJava.AuthenticationProvider{
+	authenticationProviders := []FromJava2.AuthenticationProvider{
 		daoAuthenticationProvider,
 	}
 
-	providerManager := FromJava.NewProviderManager(authenticationProviders, nil)
+	providerManager := FromJava2.NewProviderManager(authenticationProviders, nil)
 
 	var username = "user@example.com"  // Replace with actual username
 	var password = "securePassword123" // Replace with actual password
 
-	// Creating a new unauthenticated token
-	token := FromJava.NewUsernamePasswordAuthenticationToken(username, password)
+	// Creating a New unauthenticated token
+	token := FromJava2.NewUsernamePasswordAuthenticationToken(username, password)
 
 	result, err := providerManager.Authenticate(token)
 	if err != nil {

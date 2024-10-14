@@ -8,7 +8,7 @@ type AuthenticationException struct {
 	cause error
 }
 
-// NewAuthenticationException constructs a new AuthenticationException with a message and a root cause.
+// NewAuthenticationException constructs a New AuthenticationException with a message and a root cause.
 func NewAuthenticationException(msg string, cause error) *AuthenticationException {
 	return &AuthenticationException{
 		msg:   msg,
@@ -16,7 +16,7 @@ func NewAuthenticationException(msg string, cause error) *AuthenticationExceptio
 	}
 }
 
-// NewAuthenticationExceptionWithoutCause constructs a new AuthenticationException with a message and no root cause.
+// NewAuthenticationExceptionWithoutCause constructs a New AuthenticationException with a message and no root cause.
 func NewAuthenticationExceptionWithoutCause(msg string) *AuthenticationException {
 	return &AuthenticationException{
 		msg: msg,

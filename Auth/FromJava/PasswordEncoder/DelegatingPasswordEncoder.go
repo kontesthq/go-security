@@ -3,9 +3,9 @@ package PasswordEncoder
 import (
 	"errors"
 	"fmt"
-	"github.com/ayushs-2k4/go-security/Auth/new/FromJava/PasswordEncoder/argon2"
-	"github.com/ayushs-2k4/go-security/Auth/new/FromJava/PasswordEncoder/bcrypt"
-	"github.com/ayushs-2k4/go-security/Auth/new/FromJava/PasswordEncoder/scrypt"
+	"github.com/ayushs-2k4/go-security/Auth/FromJava/PasswordEncoder/argon2"
+	"github.com/ayushs-2k4/go-security/Auth/FromJava/PasswordEncoder/bcrypt"
+	"github.com/ayushs-2k4/go-security/Auth/FromJava/PasswordEncoder/scrypt"
 	"strings"
 )
 
@@ -32,12 +32,12 @@ func GetPasswordEncoders() map[string]PasswordEncoder {
 	return idToPasswordEncoder
 }
 
-// NewDelegatingPasswordEncoder creates a new instance of DelegatingPasswordEncoder.
+// NewDelegatingPasswordEncoder creates a New instance of DelegatingPasswordEncoder.
 func NewDelegatingPasswordEncoder(idForEncode string, idToPasswordEncoder map[string]PasswordEncoder) (*DelegatingPasswordEncoder, error) {
 	return NewDelegatingPasswordEncoderWithCustomPrefixSuffix(idForEncode, idToPasswordEncoder, "{", "}")
 }
 
-// NewDelegatingPasswordEncoderWithCustomPrefixSuffix creates a new instance with custom prefix and suffix.
+// NewDelegatingPasswordEncoderWithCustomPrefixSuffix creates a New instance with custom prefix and suffix.
 func NewDelegatingPasswordEncoderWithCustomPrefixSuffix(idForEncode string, idToPasswordEncoder map[string]PasswordEncoder, idPrefix string, idSuffix string) (*DelegatingPasswordEncoder, error) {
 	if idForEncode == "" {
 		return nil, errors.New("IdForEncode cannot be empty")

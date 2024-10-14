@@ -23,7 +23,7 @@ type DefaultAuthenticationEventPublisher struct {
 	defaultAuthenticationFailureEventConstructor reflect.Type
 }
 
-// NewDefaultAuthenticationEventPublisher creates a new instance of DefaultAuthenticationEventPublisher.
+// NewDefaultAuthenticationEventPublisher creates a New instance of DefaultAuthenticationEventPublisher.
 func NewDefaultAuthenticationEventPublisher(publisher ApplicationEventPublisher) *DefaultAuthenticationEventPublisher {
 	d := &DefaultAuthenticationEventPublisher{
 		logger:                    log.Default(),

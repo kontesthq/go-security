@@ -13,7 +13,7 @@ type InMemoryRefreshTokenStore struct {
 	tokens map[string]string
 }
 
-// NewInMemoryRefreshTokenStore creates a new instance of InMemoryRefreshTokenStore.
+// NewInMemoryRefreshTokenStore creates a New instance of InMemoryRefreshTokenStore.
 func NewInMemoryRefreshTokenStore() *InMemoryRefreshTokenStore {
 	return &InMemoryRefreshTokenStore{
 		tokens: make(map[string]string),

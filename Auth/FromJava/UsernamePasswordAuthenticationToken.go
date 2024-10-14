@@ -21,7 +21,7 @@ func (u *UsernamePasswordAuthenticationToken) String() string {
 }
 
 func (u *UsernamePasswordAuthenticationToken) HashCode() int {
-	h := fnv.New32a()            // Create a new FNV-1a hash
+	h := fnv.New32a()            // Create a New FNV-1a hash
 	h.Write([]byte(u.GetName())) // Write the principal's name to the hash
 	return int(h.Sum32())        // Return the hash as an int
 }
@@ -36,7 +36,7 @@ func (u *UsernamePasswordAuthenticationToken) Implies(subject Subject) bool {
 	return true
 }
 
-// NewUsernamePasswordAuthenticationToken creates a new unauthenticated token with principal and credentials.
+// NewUsernamePasswordAuthenticationToken creates a New unauthenticated token with principal and credentials.
 func NewUsernamePasswordAuthenticationToken(principal string, credentials interface{}) *UsernamePasswordAuthenticationToken {
 	return &UsernamePasswordAuthenticationToken{
 		AbstractAuthenticationToken: *NewAbstractAuthenticationToken(nil),
@@ -45,7 +45,7 @@ func NewUsernamePasswordAuthenticationToken(principal string, credentials interf
 	}
 }
 
-// NewAuthenticatedUsernamePasswordAuthenticationToken creates a new authenticated token with authorities.
+// NewAuthenticatedUsernamePasswordAuthenticationToken creates a New authenticated token with authorities.
 func NewAuthenticatedUsernamePasswordAuthenticationToken(principal string, credentials interface{}, authorities []GrantedAuthority) *UsernamePasswordAuthenticationToken {
 	token := &UsernamePasswordAuthenticationToken{
 		AbstractAuthenticationToken: *NewAbstractAuthenticationToken(authorities),
