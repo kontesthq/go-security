@@ -4,7 +4,6 @@ import (
 	"errors"
 	"golang.org/x/crypto/bcrypt"
 	"log"
-	"math/rand/v2"
 	"regexp"
 	"strconv"
 )
@@ -27,7 +26,6 @@ type BCryptPasswordEncoder struct {
 	logger         *log.Logger    // Logger for logging warnings or errors
 	strength       int            // Strength of the BCrypt encoder (cost factor)
 	version        BCryptVersion  // Version of bcrypt to use
-	random         *rand.Rand     // Secure random instance to use
 }
 
 // NewBCryptPasswordEncoder creates a New instance of BCryptPasswordEncoder with the specified strength.
@@ -37,26 +35,26 @@ func NewBCryptPasswordEncoder() *BCryptPasswordEncoder {
 
 // NewBCryptPasswordEncoderWithStrength creates a New instance of BCryptPasswordEncoder with specified strength.
 func NewBCryptPasswordEncoderWithStrength(strength int) *BCryptPasswordEncoder {
-	return NewBCryptPasswordEncoderWithVersionAndStrength(BCryptVersion2A, strength, nil)
+	return NewBCryptPasswordEncoderWithVersionAndStrength(BCryptVersion2A, strength)
 }
 
 // NewBCryptPasswordEncoderWithVersion creates a New instance of BCryptPasswordEncoder with specified version.
 func NewBCryptPasswordEncoderWithVersion(version BCryptVersion) *BCryptPasswordEncoder {
-	return NewBCryptPasswordEncoderWithVersionAndStrength(version, -1, nil)
+	return NewBCryptPasswordEncoderWithVersionAndStrength(version, -1)
 }
 
 // NewBCryptPasswordEncoderWithVersionAndRandom creates a New instance with the specified version and a secure random instance.
-func NewBCryptPasswordEncoderWithVersionAndRandom(version BCryptVersion, random *rand.Rand) *BCryptPasswordEncoder {
-	return NewBCryptPasswordEncoderWithVersionAndStrength(version, -1, random)
+func NewBCryptPasswordEncoderWithVersionAndRandom(version BCryptVersion) *BCryptPasswordEncoder {
+	return NewBCryptPasswordEncoderWithVersionAndStrength(version, -1)
 }
 
 // NewBCryptPasswordEncoderWithStrengthAndRandom creates a New instance with the specified strength and a secure random instance.
-func NewBCryptPasswordEncoderWithStrengthAndRandom(strength int, random *rand.Rand) *BCryptPasswordEncoder {
-	return NewBCryptPasswordEncoderWithVersionAndStrength(BCryptVersion2A, strength, random)
+func NewBCryptPasswordEncoderWithStrengthAndRandom(strength int) *BCryptPasswordEncoder {
+	return NewBCryptPasswordEncoderWithVersionAndStrength(BCryptVersion2A, strength)
 }
 
 // NewBCryptPasswordEncoderWithVersionAndStrength creates a New instance with the specified version and strength.
-func NewBCryptPasswordEncoderWithVersionAndStrength(version BCryptVersion, strength int, random *rand.Rand) *BCryptPasswordEncoder {
+func NewBCryptPasswordEncoderWithVersionAndStrength(version BCryptVersion, strength int) *BCryptPasswordEncoder {
 	if strength != -1 && (strength < 4 || strength > 31) {
 		panic(errors.New("Bad strength: must be between 4 and 31"))
 	}
@@ -70,7 +68,6 @@ func NewBCryptPasswordEncoderWithVersionAndStrength(version BCryptVersion, stren
 		logger:         log.Default(),
 		strength:       strength,
 		version:        version,
-		random:         random,
 	}
 }
 
