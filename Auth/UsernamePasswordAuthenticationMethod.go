@@ -1,0 +1,90 @@
+package Auth
+
+import (
+	"errors"
+	"fmt"
+	"github.com/ayushs-2k4/go-security/Auth/FromJava/PasswordEncoder"
+	error2 "github.com/ayushs-2k4/go-security/Auth/error"
+	"log"
+)
+
+type UsernamePasswordAuthenticationMethod struct {
+	Username                           string
+	Password                           string
+	DelegatingPasswordEncoder          *PasswordEncoder.DelegatingPasswordEncoder
+	ShouldAutomaticallyUpgradePassword bool
+	GetUserDetails                     func(username string) (UserDetails, error)
+	ChangePasswordFunc                 func(username, newPassword string) error
+}
+
+func NewUsernamePasswordAuthenticationMethod(username, password string, delegatingPasswordEncoder *PasswordEncoder.DelegatingPasswordEncoder, shouldAutomaticallyUpgradePassword bool, getUserDetailsFunc func(username string) (UserDetails, error), changePasswordFunc func(username, newPassword string) error) *UsernamePasswordAuthenticationMethod {
+
+	if delegatingPasswordEncoder == nil {
+		idForEncode := "scrypt"
+		encoders := PasswordEncoder.GetPasswordEncoders()
+		var err error
+		delegatingPasswordEncoder, err = PasswordEncoder.NewDelegatingPasswordEncoder(idForEncode, encoders)
+		if err != nil {
+			log.Fatalf("Error creating DelegatingPasswordEncoder: %s", err)
+		}
+	}
+
+	return &UsernamePasswordAuthenticationMethod{
+		Username:                           username,
+		Password:                           password,
+		DelegatingPasswordEncoder:          delegatingPasswordEncoder,
+		ShouldAutomaticallyUpgradePassword: shouldAutomaticallyUpgradePassword,
+		GetUserDetails:                     getUserDetailsFunc,
+		ChangePasswordFunc:                 changePasswordFunc,
+	}
+}
+
+func (u *UsernamePasswordAuthenticationMethod) Authenticate() (bool, error) {
+	inputUsername := u.Username
+	inputPassword := u.Password
+
+	// Call the custom authentication function
+	if u.GetUserDetails != nil {
+		user, err := u.GetUserDetails(inputUsername)
+
+		if err != nil {
+			return false, err
+		}
+
+		if user == nil {
+			return false, &error2.UserNotFoundError{}
+		}
+
+		dbPassword := user.GetPassword() // prefixEncodedPassword
+		fmt.Println("dbPassword: " + dbPassword)
+
+		// check if password matches
+		if passwordMatches, err := u.DelegatingPasswordEncoder.Matches(inputPassword, dbPassword); err != nil || !passwordMatches {
+			return false, &error2.IncorrectPasswordError{}
+		}
+
+		// Authentication is successful
+		if u.ShouldAutomaticallyUpgradePassword {
+			shouldUpgradeEncoding := u.DelegatingPasswordEncoder.UpgradeEncoding(dbPassword)
+
+			if shouldUpgradeEncoding {
+				passwordWithNewEncoding, err := u.DelegatingPasswordEncoder.Encode(inputPassword)
+
+				if err != nil {
+					log.Printf("Cannot upgrade encoding due to error: %s\n", err)
+				} else {
+					log.Printf("Upgrading encoding for user: %s\n", user.GetUsername())
+					err := u.ChangePasswordFunc(user.GetUsername(), passwordWithNewEncoding)
+					if err != nil {
+						return true, &error2.ChangePasswordError{}
+					}
+				}
+			}
+		}
+
+		return true, nil
+
+	} else {
+		return false, errors.New("no GetUserDetails function provided")
+	}
+}
