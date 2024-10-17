@@ -103,7 +103,6 @@ func (encoder *Argon2PasswordEncoder) UpgradeEncoding(encodedPassword string) (b
 
 	argon2Hash, err := Decode(encodedPassword)
 	if err != nil {
-		//encoder.Logger.Println("error decoding password hash:", err)
 		return false, err
 	}
 

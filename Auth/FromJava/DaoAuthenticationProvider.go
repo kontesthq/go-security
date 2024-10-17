@@ -2,7 +2,7 @@ package FromJava
 
 import (
 	"errors"
-	"github.com/ayushs-2k4/go-security/Auth/FromJava/PasswordEncoder"
+	"github.com/ayushs-2k4/go-security/Auth/PasswordEncoder"
 	"sync"
 )
 

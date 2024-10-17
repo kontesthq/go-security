@@ -1,8 +1,8 @@
 package PasswordEncoder
 
 import (
-	"github.com/ayushs-2k4/go-security/Auth/FromJava/PasswordEncoder/bcrypt"
-	"github.com/ayushs-2k4/go-security/Auth/FromJava/PasswordEncoder/scrypt"
+	"github.com/ayushs-2k4/go-security/Auth/PasswordEncoder/bcrypt"
+	"github.com/ayushs-2k4/go-security/Auth/PasswordEncoder/scrypt"
 )
 
 type PasswordEncoderFactories struct {

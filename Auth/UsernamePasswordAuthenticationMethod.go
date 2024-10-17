@@ -3,10 +3,12 @@ package Auth
 import (
 	"errors"
 	"fmt"
-	"github.com/ayushs-2k4/go-security/Auth/FromJava/PasswordEncoder"
+	"github.com/ayushs-2k4/go-security/Auth/PasswordEncoder"
 	error2 "github.com/ayushs-2k4/go-security/Auth/error"
 	"log"
 )
+
+var globalDelegatingPasswordEncoder GlobalDelegatingPasswordEncoder
 
 type UsernamePasswordAuthenticationMethod struct {
 	Username                           string
@@ -18,15 +20,8 @@ type UsernamePasswordAuthenticationMethod struct {
 }
 
 func NewUsernamePasswordAuthenticationMethod(username, password string, delegatingPasswordEncoder *PasswordEncoder.DelegatingPasswordEncoder, shouldAutomaticallyUpgradePassword bool, getUserDetailsFunc func(username string) (UserDetails, error), changePasswordFunc func(username, newPassword string) error) *UsernamePasswordAuthenticationMethod {
-
 	if delegatingPasswordEncoder == nil {
-		idForEncode := "scrypt"
-		encoders := PasswordEncoder.GetPasswordEncoders()
-		var err error
-		delegatingPasswordEncoder, err = PasswordEncoder.NewDelegatingPasswordEncoder(idForEncode, encoders)
-		if err != nil {
-			log.Fatalf("Error creating DelegatingPasswordEncoder: %s", err)
-		}
+		delegatingPasswordEncoder = globalDelegatingPasswordEncoder.GetGlobalPasswordEncoder()
 	}
 
 	return &UsernamePasswordAuthenticationMethod{

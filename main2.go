@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	FromJava2 "github.com/ayushs-2k4/go-security/Auth/FromJava"
-	"github.com/ayushs-2k4/go-security/Auth/FromJava/PasswordEncoder/bcrypt"
+	"github.com/ayushs-2k4/go-security/Auth/PasswordEncoder/bcrypt"
 	"log"
 )
 

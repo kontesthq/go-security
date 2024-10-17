@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/ayushs-2k4/go-security/Auth"
+	"log/slog"
 )
 
 type User struct {
@@ -24,7 +25,7 @@ func (u UserPrincipal) GetPassword() string {
 }
 
 func main() {
-	DoAuthenticate("ayush", "ayush")
+	DoAuthenticate("ayush", "ayussh")
 }
 
 func DoAuthenticate(username string, password string) bool {
@@ -35,19 +36,17 @@ func DoAuthenticate(username string, password string) bool {
 		true,
 		func(username string) (Auth.UserDetails, error) {
 			if username == "ayush" {
-				if password == "ayush" {
-					return UserPrincipal{
-						User: User{
-							Username: "ayush",
-							Password: "ayush",
-							Leetcode: "ayush",
-						},
-					}, nil
-				} else {
-					return nil, nil
-				}
+				return UserPrincipal{
+					User: User{
+						Username: "ayush",
+						Password: "ayush",
+						Leetcode: "ayush",
+					},
+				}, nil
+
+			} else {
+				return nil, nil
 			}
-			return nil, nil
 		},
 		func(username, newPassword string) error {
 			fmt.Println("Changing password")
@@ -58,6 +57,7 @@ func DoAuthenticate(username string, password string) bool {
 	isAuthenticated, err := usernamePasswordAuthenticationMethod.Authenticate()
 
 	if err != nil {
+		slog.Error("Error authenticating", slog.String("error", err.Error()))
 		return false
 	}
 
