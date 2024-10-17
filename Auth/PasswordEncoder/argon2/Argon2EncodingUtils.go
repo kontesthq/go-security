@@ -17,6 +17,24 @@ type Argon2Parameters struct {
 	Salt       []byte
 }
 
+// NewArgon2Parameters creates a new Argon2Parameters instance with provided values.
+func NewArgon2Parameters(argon2Type, memory, iterations, lanes int, salt []byte) (*Argon2Parameters, error) {
+	// Ensure valid type
+	if argon2Type != Argon2d && argon2Type != Argon2i && argon2Type != Argon2id {
+		return nil, errors.New("invalid Argon2 type")
+	}
+
+	// Set up Argon2 parameters
+	return &Argon2Parameters{
+		Type:       argon2Type,
+		Version:    19, // Argon2 version
+		Memory:     memory,
+		Iterations: iterations,
+		Lanes:      lanes,
+		Salt:       salt,
+	}, nil
+}
+
 // Constants for Argon2 types
 const (
 	Argon2d = iota

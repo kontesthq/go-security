@@ -25,7 +25,7 @@ func (u UserPrincipal) GetPassword() string {
 }
 
 func main() {
-	DoAuthenticate("ayush", "ayussh")
+	DoAuthenticate("ayush", "ayush")
 }
 
 func DoAuthenticate(username string, password string) bool {
@@ -39,7 +39,7 @@ func DoAuthenticate(username string, password string) bool {
 				return UserPrincipal{
 					User: User{
 						Username: "ayush",
-						Password: "ayush",
+						Password: "{argon2}$argon2id$v=19$m=16384,t=2,p=1$V3srpAFTpAbEKK14Yonp/w$6r5fPPWocuvpM5XuLv5buh+ZA+aOaNIzAK0wGuWo0qA",
 						Leetcode: "ayush",
 					},
 				}, nil
@@ -49,7 +49,7 @@ func DoAuthenticate(username string, password string) bool {
 			}
 		},
 		func(username, newPassword string) error {
-			fmt.Println("Changing password")
+			fmt.Println("Changing password to: " + newPassword)
 			return nil
 		},
 	)

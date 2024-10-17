@@ -2,12 +2,10 @@ package argon2
 
 import (
 	"crypto/rand"
-	"encoding/base64"
 	"errors"
-	"fmt"
+	error2 "github.com/ayushs-2k4/go-security/Auth/error"
 	"golang.org/x/crypto/argon2"
 	"log"
-	"strings"
 )
 
 // Argon2PasswordEncoder implements a password encoder using Argon2.
@@ -58,8 +56,18 @@ func (encoder *Argon2PasswordEncoder) Encode(rawPassword string) (string, error)
 
 	hash := argon2.IDKey([]byte(rawPassword), salt, encoder.iterations, encoder.memory, encoder.parallelism, encoder.hashLength)
 
+	argon2Parameters, err := NewArgon2Parameters(Argon2id, int(encoder.memory), int(encoder.iterations), int(encoder.parallelism), salt)
+
+	if err != nil {
+		return "", err
+	}
+
+	encoded, err := Encode(hash, argon2Parameters)
+	if err != nil {
+		return "", err
+	}
+
 	// Encode salt and hash to a single string
-	encoded := fmt.Sprintf("%s$%s", base64.StdEncoding.EncodeToString(salt), base64.StdEncoding.EncodeToString(hash))
 	return encoded, nil
 }
 
@@ -70,28 +78,31 @@ func (encoder *Argon2PasswordEncoder) Matches(rawPassword, encodedPassword strin
 		return false, errors.New("password hash is null")
 	}
 
-	parts := strings.Split(encodedPassword, "$")
-	if len(parts) != 2 {
-		log.Println("Malformed password hash")
-		return false, errors.New("malformed password hash")
-	}
+	decoded, err := Decode(encodedPassword)
 
-	salt, err := base64.StdEncoding.DecodeString(parts[0])
 	if err != nil {
-		log.Println("Failed to decode salt:", err)
-		return false, errors.New(fmt.Sprintf("failed to decode salt: %f", err))
+		return false, err
 	}
 
-	// Decode hash
-	hash, err := base64.StdEncoding.DecodeString(parts[1])
-	if err != nil {
-		log.Println("Failed to decode hash:", err)
-		return false, errors.New(fmt.Sprintf("failed to decode hash: %f", err))
+	hashBytes := decoded.Hash
+	parameters := decoded.Parameters
+
+	// Validate the extracted parameters
+	if len(hashBytes) == 0 || parameters.Salt == nil {
+		log.Println("Decoded password hash or salt is empty")
+		return false, errors.New("decoded password hash or salt is empty")
 	}
 
-	// Generate hash from raw password using the same salt
-	generatedHash := argon2.IDKey([]byte(rawPassword), salt, encoder.iterations, encoder.memory, encoder.parallelism, encoder.hashLength)
-	return constantTimeArrayEquals(hash, generatedHash), nil
+	// Generate a hash from the raw password using the extracted parameters
+	generatedHash := argon2.IDKey([]byte(rawPassword), parameters.Salt, uint32(parameters.Iterations), uint32(parameters.Memory), uint8(parameters.Lanes), uint32(len(hashBytes)))
+
+	// Perform a constant-time comparison of the two hashes for security
+	if constantTimeArrayEquals(hashBytes, generatedHash) {
+		return true, nil
+	}
+
+	log.Println("Password hashes do not match")
+	return false, &error2.PasswordHashNotMatchError{}
 }
 
 // UpgradeEncoding checks if the encoding parameters need to be upgraded.
