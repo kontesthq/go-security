@@ -2,7 +2,6 @@ package Auth
 
 import (
 	"errors"
-	"fmt"
 	"github.com/ayushs-2k4/go-security/Auth/PasswordEncoder"
 	error2 "github.com/ayushs-2k4/go-security/Auth/error"
 	"log"
@@ -51,7 +50,6 @@ func (u *UsernamePasswordAuthenticationMethod) Authenticate() (bool, error) {
 		}
 
 		dbPassword := user.GetPassword() // prefixEncodedPassword
-		fmt.Println("dbPassword: " + dbPassword)
 
 		// check if password matches
 		if passwordMatches, err := u.DelegatingPasswordEncoder.Matches(inputPassword, dbPassword); err != nil || !passwordMatches {
