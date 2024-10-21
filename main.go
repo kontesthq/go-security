@@ -1,125 +1,115 @@
 package main
 
 import (
-	"encoding/json"
-	"github.com/ayushs-2k4/go-security/Auth"
-	"github.com/ayushs-2k4/go-security/Auth/Store"
-	"github.com/ayushs-2k4/go-security/internal/Testing"
-	"golang.org/x/crypto/bcrypt"
+	"errors"
+	"fmt"
+	FromJava2 "github.com/ayushs-2k4/go-security/Auth/FromJava"
+	"github.com/ayushs-2k4/go-security/Auth/PasswordEncoder/bcrypt"
 	"log"
-	"net/http"
-	"time"
 )
 
-func getInMemoryUserStore() *Store.InMemoryUserStore {
-	email := "user@example.com"
-	password := "password123"
+// MyUserDetails2 struct implements UserDetails interface
+type MyUserDetails2 struct {
+	username              string
+	password              string
+	authorities           []FromJava2.GrantedAuthority
+	accountNonExpired     bool
+	accountNonLocked      bool
+	credentialsNonExpired bool
+	enabled               bool
+}
 
-	inMemoryUserStore := Store.NewInMemoryUserStore()
-
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	if err != nil {
-		log.Fatalf("Failed to hash password: %v", err)
+// NewMyUserDetails is a constructor for MyUserDetails2
+func NewMyUserDetails(username, password string, authorities []FromJava2.GrantedAuthority, accountNonExpired, accountNonLocked, credentialsNonExpired, enabled bool) *MyUserDetails2 {
+	return &MyUserDetails2{
+		username:              username,
+		password:              password,
+		authorities:           authorities,
+		accountNonExpired:     accountNonExpired,
+		accountNonLocked:      accountNonLocked,
+		credentialsNonExpired: credentialsNonExpired,
+		enabled:               enabled,
 	}
-	inMemoryUserStore.AddUser(email, string(hashedPassword))
+}
 
-	return inMemoryUserStore
+// GetAuthorities returns the authorities granted to the user
+func (u *MyUserDetails2) GetAuthorities() []FromJava2.GrantedAuthority {
+	return u.authorities
+}
+
+// GetPassword returns the password of the user
+func (u *MyUserDetails2) GetPassword() string {
+	return u.password
+}
+
+// GetUsername returns the username of the user
+func (u *MyUserDetails2) GetUsername() string {
+	return u.username
+}
+
+// IsAccountNonExpired indicates whether the user's account is expired
+func (u *MyUserDetails2) IsAccountNonExpired() bool {
+	return u.accountNonExpired
+}
+
+// IsAccountNonLocked indicates whether the user's account is locked
+func (u *MyUserDetails2) IsAccountNonLocked() bool {
+	return u.accountNonLocked
+}
+
+// IsCredentialsNonExpired indicates whether the user's credentials are expired
+func (u *MyUserDetails2) IsCredentialsNonExpired() bool {
+	return u.credentialsNonExpired
+}
+
+// IsEnabled indicates whether the user is enabled
+func (u *MyUserDetails2) IsEnabled() bool {
+	return u.enabled
+}
+
+type MyUserDetailsService struct {
+}
+
+// LoadUserByUsername loads user details by username
+func (m *MyUserDetailsService) LoadUserByUsername(username string) (FromJava2.UserDetails, error) {
+	if username == "user@example.com" {
+		// Creating a sample authority for the user
+		authority := &FromJava2.SimpleGrantedAuthority{Authority: "ROLE_USER"}
+
+		// Create and return a New MyUserDetails2 instance
+		return NewMyUserDetails(username, "This is Password", []FromJava2.GrantedAuthority{authority}, true, true, true, true), nil
+	}
+
+	// Return an error if the username is not found
+	return nil, errors.New("user not found")
 }
 
 func main() {
 
-	jwtSecret := "my_secret"
+	//userDetailsService := &MyUserDetailsService{}
 
-	inMemoryUserStore := getInMemoryUserStore()
+	daoAuthenticationProvider := FromJava2.NewDaoAuthenticationProvider(bcrypt.NewBCryptPasswordEncoder(), nil, nil, nil)
 
-	// Initialize the PasswordAuth method
-	usernamePasswordAuth := Auth.NewPasswordAuth(inMemoryUserStore)
+	authenticationProviders := []FromJava2.AuthenticationProvider{
+		daoAuthenticationProvider,
+	}
 
-	jwtAuth := Auth.NewJWTAuth([]byte(jwtSecret))
+	providerManager := FromJava2.NewProviderManager(authenticationProviders, nil)
 
-	authChain := Auth.NewAuthChain(jwtAuth, usernamePasswordAuth)
+	var username = "user@example.com"  // Replace with actual username
+	var password = "securePassword123" // Replace with actual password
 
-	// Add a skip path
-	authChain.AddSkipPath("^/login(/.*)?$")
+	// Creating a New unauthenticated token
+	token := FromJava2.NewUsernamePasswordAuthenticationToken(username, password)
 
-	router := http.NewServeMux()
-	router.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Hello, World!"))
-	})
-
-	// Wrap the router with the AuthMiddleware
-	router.HandleFunc("PUT /login", HandleLogin)
-
-	wrappedWouter := Auth.AuthMiddleware(authChain, router)
-
-	err := http.ListenAndServe(":8080", wrappedWouter)
+	result, err := providerManager.Authenticate(token)
 	if err != nil {
-		log.Fatalf("Server failed: %v", err)
+		log.Printf("Authentication failed: %v", err)
+	} else {
+		log.Printf("Authentication successful: %v", result)
 	}
 
-}
+	fmt.Println(providerManager)
 
-func HandleLogin(w http.ResponseWriter, r *http.Request) {
-	jwtSecret := "my_secret"
-	tokenExpiry := 10 * time.Second
-
-	inMemoryUserStore := getInMemoryUserStore()
-
-	var loginReq Testing.LoginRequest
-
-	// Decode the JSON request body
-	err := json.NewDecoder(r.Body).Decode(&loginReq)
-	if err != nil {
-		http.Error(w, "Bad request", http.StatusBadRequest)
-		return
-	}
-
-	// Now you can access username and password
-	username := loginReq.Username
-	password := loginReq.Password
-
-	user, err := inMemoryUserStore.FindUserByUsername(username)
-
-	if err != nil || user == nil {
-		http.Error(w, "User not found", http.StatusNotFound)
-		return
-	}
-
-	// Password check (in a real scenario, you'd retrieve the hash from a DB)
-	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
-	if err != nil {
-		http.Error(w, "Wrong Username password", http.StatusForbidden)
-		return
-	}
-
-	// Authentication successful
-	jwtToken, refreshToken, err := Auth.GenerateJWT(username, []byte(jwtSecret), tokenExpiry, Store.NewInMemoryRefreshTokenStore())
-
-	jWTResponse := JWTResponse{
-		JWTToken:     jwtToken,
-		RefreshToken: refreshToken,
-	}
-
-	// Set content type and status code
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK) // Set the status code explicitly
-
-	// Marshal the response to JSON
-	responseBody, err := json.Marshal(jWTResponse)
-	if err != nil {
-		http.Error(w, "Failed to create response", http.StatusInternalServerError)
-		return
-	}
-
-	// Send the JSON response
-	_, err = w.Write(responseBody) // Write the marshalled JSON response to the ResponseWriter
-	if err != nil {
-		http.Error(w, "Failed to send response", http.StatusInternalServerError)
-		return
-	}
-}
-
-type JWTResponse struct {
-	JWTToken     string `json:"jwtToken"`
-	RefreshToken string `json:"refreshToken"`
+	fmt.Println("Hello")
 }

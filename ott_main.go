@@ -5,26 +5,9 @@ import (
 	"fmt"
 	"github.com/ayushs-2k4/go-security/Auth"
 	"github.com/ayushs-2k4/go-security/Auth/ott"
+	"github.com/ayushs-2k4/go-security/internal/testing"
 	"log/slog"
 )
-
-type User struct {
-	Username string
-	Password string
-	Leetcode string
-}
-
-type UserPrincipal struct {
-	User User
-}
-
-func (u UserPrincipal) GetUsername() string {
-	return u.User.Username
-}
-
-func (u UserPrincipal) GetPassword() string {
-	return u.User.Password
-}
 
 func main() {
 	oneTimeTokenService := ott.NewInMemoryOneTimeTokenService()
@@ -48,7 +31,7 @@ func main() {
 // Mock user data for demonstration
 var userData = map[string]Auth.UserDetails{
 
-	"testuser": &UserPrincipal{User: User{
+	"testuser": &testing.TestUserPrincipal{User: testing.TestUser{
 		Username: "testuser",
 		Password: "password123", // Use a proper password (hashed) in a real app
 		Leetcode: "testuserLeetcode",

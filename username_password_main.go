@@ -4,26 +4,9 @@ import (
 	"fmt"
 	"github.com/ayushs-2k4/go-security/Auth"
 	"github.com/ayushs-2k4/go-security/Auth/username_password"
+	"github.com/ayushs-2k4/go-security/internal/testing"
 	"log/slog"
 )
-
-type User struct {
-	Username string
-	Password string
-	Leetcode string
-}
-
-type UserPrincipal struct {
-	User User
-}
-
-func (u UserPrincipal) GetUsername() string {
-	return u.User.Username
-}
-
-func (u UserPrincipal) GetPassword() string {
-	return u.User.Password
-}
 
 func main() {
 	DoAuthenticateUsernameEmail("ayush", "ayush")
@@ -37,8 +20,8 @@ func DoAuthenticateUsernameEmail(username string, password string) bool {
 		true,
 		func(username string) (Auth.UserDetails, error) {
 			if username == "ayush" {
-				return UserPrincipal{
-					User: User{
+				return testing.TestUserPrincipal{
+					User: testing.TestUser{
 						Username: "ayush",
 						Password: "{argon2}$argon2id$v=19$m=16384,t=2,p=1$V3srpAFTpAbEKK14Yonp/w$6r5fPPWocuvpM5XuLv5buh+ZA+aOaNIzAK0wGuWo0qA",
 						Leetcode: "ayush",

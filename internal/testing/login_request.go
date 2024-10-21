@@ -1,4 +1,4 @@
-package Testing
+package testing
 
 type LoginRequest struct {
 	Username string `json:"username"`

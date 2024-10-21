@@ -8,7 +8,7 @@ import (
 	"log"
 )
 
-var globalDelegatingPasswordEncoder Auth.GlobalDelegatingPasswordEncoder
+var globalDelegatingPasswordEncoder PasswordEncoder.GlobalDelegatingPasswordEncoder
 
 type UsernamePasswordAuthenticationMethod struct {
 	Username                           string
