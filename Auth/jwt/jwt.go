@@ -1,8 +1,9 @@
-package Auth
+package jwt
 
 import (
 	"errors"
 	"github.com/ayushs-2k4/go-security/Auth/Store"
+	error2 "github.com/ayushs-2k4/go-security/Auth/jwt/error"
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
 	"log"
@@ -81,7 +82,7 @@ func RefreshJWT(refreshTokenString string, secret []byte, refreshTokenStore Stor
 	// Validate refresh token
 	username, err := refreshTokenStore.FindSubject(refreshTokenString)
 	if err != nil {
-		return "", "", errors.New("invalid refresh token")
+		return "", "", &error2.RefreshTokenInvalidError{}
 	}
 
 	// Generate New JWT

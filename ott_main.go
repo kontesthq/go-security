@@ -1,9 +1,9 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"github.com/ayushs-2k4/go-security/Auth"
+	error2 "github.com/ayushs-2k4/go-security/Auth/error"
 	"github.com/ayushs-2k4/go-security/Auth/ott"
 	"github.com/ayushs-2k4/go-security/internal/testing"
 	"log/slog"
@@ -43,14 +43,14 @@ func getUserDetails(username string) (Auth.UserDetails, error) {
 		return user, nil
 	}
 
-	return nil, errors.New("user not found")
+	return nil, &error2.UserNotFoundError{}
 }
 
 func DoAuthenticateOTT(oneTimeToken ott.OneTimeTokenAuthenticationToken, oneTimeTokenService ott.OneTimeTokenService) {
 
 	oneTimeTokenAuthenticationMethod := ott.NewOneTimeTokenAuthenticationMethod(oneTimeToken, oneTimeTokenService, getUserDetails)
 
-	authenticated, err := oneTimeTokenAuthenticationMethod.Authenticate()
+	authenticated, _, err := oneTimeTokenAuthenticationMethod.Authenticate()
 	if err != nil {
 		slog.Error("Error authenticating", slog.String("error", err.Error()))
 		return

@@ -3,6 +3,7 @@ package argon2
 import (
 	"crypto/rand"
 	"errors"
+	error3 "github.com/ayushs-2k4/go-security/Auth/PasswordEncoder/error"
 	error2 "github.com/ayushs-2k4/go-security/Auth/error"
 	"golang.org/x/crypto/argon2"
 	"log"
@@ -74,8 +75,7 @@ func (encoder *Argon2PasswordEncoder) Encode(rawPassword string) (string, error)
 // Matches compares the raw password with the encoded password.
 func (encoder *Argon2PasswordEncoder) Matches(rawPassword, encodedPassword string) (bool, error) {
 	if encodedPassword == "" {
-		log.Println("password hash is null")
-		return false, errors.New("password hash is null")
+		return false, &error3.PasswordHashNullError{}
 	}
 
 	decoded, err := Decode(encodedPassword)
@@ -108,8 +108,7 @@ func (encoder *Argon2PasswordEncoder) Matches(rawPassword, encodedPassword strin
 // UpgradeEncoding checks if the encoding parameters need to be upgraded.
 func (encoder *Argon2PasswordEncoder) UpgradeEncoding(encodedPassword string) (bool, error) {
 	if encodedPassword == "" {
-		log.Println("password hash is null")
-		return false, errors.New("password hash is null")
+		return false, &error3.PasswordHashNullError{}
 	}
 
 	argon2Hash, err := Decode(encodedPassword)

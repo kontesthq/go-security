@@ -1,10 +1,10 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	FromJava2 "github.com/ayushs-2k4/go-security/Auth/FromJava"
 	"github.com/ayushs-2k4/go-security/Auth/PasswordEncoder/bcrypt"
+	error2 "github.com/ayushs-2k4/go-security/Auth/error"
 	"log"
 )
 
@@ -81,7 +81,7 @@ func (m *MyUserDetailsService) LoadUserByUsername(username string) (FromJava2.Us
 	}
 
 	// Return an error if the username is not found
-	return nil, errors.New("user not found")
+	return nil, &error2.UserNotFoundError{}
 }
 
 func main() {

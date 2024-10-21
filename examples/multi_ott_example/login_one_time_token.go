@@ -1,8 +1,8 @@
 package multi_ott_example
 
 import (
-	"errors"
 	"github.com/ayushs-2k4/go-security/Auth/ott"
+	error2 "github.com/ayushs-2k4/go-security/examples/multi_ott_example/error"
 	"sync"
 )
 
@@ -29,7 +29,7 @@ func (o *LoginOneTimeToken) GenerateToken(username string) (*ott.OneTimeTokenAut
 		return nil, err
 	}
 
-	return GenerateOneTimeToken(user, oneTimeService)
+	return ott.GenerateOneTimeToken(user, oneTimeService)
 }
 
 func (o *LoginOneTimeToken) DoAuthenticateForgotPassword(providedToken string) (string, error) {
@@ -45,7 +45,7 @@ func (o *LoginOneTimeToken) DoAuthenticateForgotPassword(providedToken string) (
 	}
 
 	if !authenticated {
-		return "", errors.New("wrong OTT")
+		return "", &error2.WrongOTTError{}
 	}
 
 	return username, nil

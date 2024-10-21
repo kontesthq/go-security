@@ -1,6 +1,8 @@
 package ott
 
-import "errors"
+import (
+	error2 "github.com/ayushs-2k4/go-security/Auth/error"
+)
 
 type GenerateOneTimeTokenRequest struct {
 	Username string
@@ -8,8 +10,9 @@ type GenerateOneTimeTokenRequest struct {
 
 func NewGenerateOneTimeTokenRequest(username string) (*GenerateOneTimeTokenRequest, error) {
 	if username == "" {
-		return nil, errors.New("username cannot be empty")
+		return nil, &error2.UsernameEmptyError{}
 	}
+
 	return &GenerateOneTimeTokenRequest{Username: username}, nil
 }
 
