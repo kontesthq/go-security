@@ -1,8 +1,8 @@
 package ott
 
 import (
-	"errors"
 	"github.com/ayushs-2k4/go-security/Auth"
+	error2 "github.com/ayushs-2k4/go-security/Auth/ott/error"
 	"log/slog"
 	"os"
 )
@@ -35,7 +35,7 @@ func (o *OneTimeTokenAuthenticationMethod) Authenticate() (bool, string, error) 
 	oneTimeToken := o.oneTimeTokenService.Consume(o.oneTimeTokenAuthenticationToken)
 
 	if oneTimeToken == nil {
-		return false, "", errors.New("invalid token")
+		return false, "", &error2.InvalidOneTimeTokenError{}
 	} else {
 		user, err := o.getUserDetails(oneTimeToken.GetUsername())
 

@@ -7,6 +7,8 @@ import (
 )
 
 func main() {
+	// Simulate the one-time token login flow
+
 	// Create a new instance of the LoginOneTimeToken service
 	ottLogin := multi_ott_example.NewLoginOneTimeToken()
 
@@ -36,6 +38,7 @@ func main() {
 	fmt.Printf("Authenticated user: %s\n", authenticatedUsername)
 
 	fmt.Println()
+	// Now let's simulate the forgot password flow
 
 	// Create a new instance of the ForgotPasswordOneTimeToken service
 	ottForgotPassword := multi_ott_example.NewForgotPasswordOneTimeToken()
