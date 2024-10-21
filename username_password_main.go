@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/ayushs-2k4/go-security/Auth"
+	"github.com/ayushs-2k4/go-security/Auth/username_password"
 	"log/slog"
 )
 
@@ -25,11 +26,11 @@ func (u UserPrincipal) GetPassword() string {
 }
 
 func main() {
-	DoAuthenticate("ayush", "ayush")
+	DoAuthenticateUsernameEmail("ayush", "ayush")
 }
 
-func DoAuthenticate(username string, password string) bool {
-	usernamePasswordAuthenticationMethod := Auth.NewUsernamePasswordAuthenticationMethod(
+func DoAuthenticateUsernameEmail(username string, password string) bool {
+	usernamePasswordAuthenticationMethod := username_password.NewUsernamePasswordAuthenticationMethod(
 		username,
 		password,
 		nil,

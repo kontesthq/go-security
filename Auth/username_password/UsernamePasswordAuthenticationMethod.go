@@ -1,24 +1,25 @@
-package Auth
+package username_password
 
 import (
 	"errors"
+	"github.com/ayushs-2k4/go-security/Auth"
 	"github.com/ayushs-2k4/go-security/Auth/PasswordEncoder"
 	error2 "github.com/ayushs-2k4/go-security/Auth/error"
 	"log"
 )
 
-var globalDelegatingPasswordEncoder GlobalDelegatingPasswordEncoder
+var globalDelegatingPasswordEncoder Auth.GlobalDelegatingPasswordEncoder
 
 type UsernamePasswordAuthenticationMethod struct {
 	Username                           string
 	Password                           string
 	DelegatingPasswordEncoder          *PasswordEncoder.DelegatingPasswordEncoder
 	ShouldAutomaticallyUpgradePassword bool
-	GetUserDetails                     func(username string) (UserDetails, error)
+	GetUserDetails                     func(username string) (Auth.UserDetails, error)
 	ChangePasswordFunc                 func(username, newPassword string) error
 }
 
-func NewUsernamePasswordAuthenticationMethod(username, password string, delegatingPasswordEncoder *PasswordEncoder.DelegatingPasswordEncoder, shouldAutomaticallyUpgradePassword bool, getUserDetailsFunc func(username string) (UserDetails, error), changePasswordFunc func(username, newPassword string) error) *UsernamePasswordAuthenticationMethod {
+func NewUsernamePasswordAuthenticationMethod(username, password string, delegatingPasswordEncoder *PasswordEncoder.DelegatingPasswordEncoder, shouldAutomaticallyUpgradePassword bool, getUserDetailsFunc func(username string) (Auth.UserDetails, error), changePasswordFunc func(username, newPassword string) error) *UsernamePasswordAuthenticationMethod {
 	if delegatingPasswordEncoder == nil {
 		delegatingPasswordEncoder = globalDelegatingPasswordEncoder.GetGlobalPasswordEncoder()
 	}
@@ -78,6 +79,6 @@ func (u *UsernamePasswordAuthenticationMethod) Authenticate() (bool, error) {
 		return true, nil
 
 	} else {
-		return false, errors.New("no GetUserDetails function provided")
+		return false, errors.New("no getUserDetails function provided")
 	}
 }
