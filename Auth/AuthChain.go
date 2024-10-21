@@ -8,14 +8,14 @@ import (
 )
 
 type AuthChain struct {
-	authMethods []AuthMethod
-	skipPaths   []*regexp.Regexp
+	authenticationProvider []AuthenticationProvider
+	skipPaths              []*regexp.Regexp
 }
 
-func NewAuthChain(authMethods ...AuthMethod) *AuthChain {
+func NewAuthChain(authMethods ...AuthenticationProvider) *AuthChain {
 	return &AuthChain{
-		authMethods: authMethods,
-		skipPaths:   make([]*regexp.Regexp, 0),
+		authenticationProvider: authMethods,
+		skipPaths:              make([]*regexp.Regexp, 0),
 	}
 }
 
@@ -54,7 +54,7 @@ func (c *AuthChain) authenticate(w http.ResponseWriter, r *http.Request) error {
 
 	havePassed := false
 
-	for _, authMethod := range c.authMethods {
+	for _, authMethod := range c.authenticationProvider {
 		ok, _, err := authMethod.Authenticate(w, r)
 
 		if ok {
