@@ -10,5 +10,5 @@ var (
 )
 
 type AuthMethod interface {
-	Authenticate(w http.ResponseWriter, r *http.Request) (bool, error) // returns true if successful
+	Authenticate(w http.ResponseWriter, r *http.Request) (bool, string, error) // (isAuthenticated, username, error)
 }

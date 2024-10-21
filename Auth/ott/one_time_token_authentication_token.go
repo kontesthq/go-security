@@ -41,6 +41,11 @@ func (t *OneTimeTokenAuthenticationToken) GetTokenValue() string {
 	return t.tokenValue
 }
 
+// GetUser Get the associated user
+func (t *OneTimeTokenAuthenticationToken) GetUser() Auth.UserDetails {
+	return t.user
+}
+
 // IsAuthenticated Check if the token is authenticated
 func (t *OneTimeTokenAuthenticationToken) IsAuthenticated() bool {
 	return t.authenticated

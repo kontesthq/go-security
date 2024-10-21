@@ -32,16 +32,16 @@ func NewOneTimeTokenAuthenticationMethod(oneTimeTokenAuthenticationToken OneTime
 	}
 }
 
-func (o *OneTimeTokenAuthenticationMethod) Authenticate() (bool, error) {
+func (o *OneTimeTokenAuthenticationMethod) Authenticate() (bool, string, error) {
 	oneTimeToken := o.oneTimeTokenService.Consume(o.oneTimeTokenAuthenticationToken)
 
 	if oneTimeToken == nil {
-		return false, errors.New("invalid token")
+		return false, "", errors.New("invalid token")
 	} else {
 		user, err := o.getUserDetails(oneTimeToken.GetUsername())
 
 		if err != nil {
-			return false, err
+			return false, "", err
 		}
 
 		var authenticated *OneTimeTokenAuthenticationToken
@@ -49,6 +49,6 @@ func (o *OneTimeTokenAuthenticationMethod) Authenticate() (bool, error) {
 
 		fmt.Println(authenticated)
 
-		return true, nil
+		return true, user.GetUsername(), nil
 	}
 }

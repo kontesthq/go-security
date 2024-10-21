@@ -55,7 +55,7 @@ func (c *AuthChain) authenticate(w http.ResponseWriter, r *http.Request) error {
 	havePassed := false
 
 	for _, authMethod := range c.authMethods {
-		ok, err := authMethod.Authenticate(w, r)
+		ok, _, err := authMethod.Authenticate(w, r)
 
 		if ok {
 			havePassed = true

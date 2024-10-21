@@ -34,7 +34,7 @@ func NewUsernamePasswordAuthenticationMethod(username, password string, delegati
 	}
 }
 
-func (u *UsernamePasswordAuthenticationMethod) Authenticate() (bool, error) {
+func (u *UsernamePasswordAuthenticationMethod) Authenticate() (bool, string, error) {
 	inputUsername := u.Username
 	inputPassword := u.Password
 
@@ -43,18 +43,18 @@ func (u *UsernamePasswordAuthenticationMethod) Authenticate() (bool, error) {
 		user, err := u.GetUserDetails(inputUsername)
 
 		if err != nil {
-			return false, err
+			return false, "", err
 		}
 
 		if user == nil {
-			return false, &error2.UserNotFoundError{}
+			return false, "", &error2.UserNotFoundError{}
 		}
 
 		dbPassword := user.GetPassword() // prefixEncodedPassword
 
 		// check if password matches
 		if passwordMatches, err := u.DelegatingPasswordEncoder.Matches(inputPassword, dbPassword); err != nil || !passwordMatches {
-			return false, &error2.IncorrectPasswordError{}
+			return false, "", &error2.IncorrectPasswordError{}
 		}
 
 		// Authentication is successful
@@ -70,15 +70,15 @@ func (u *UsernamePasswordAuthenticationMethod) Authenticate() (bool, error) {
 					log.Printf("Upgrading encoding for user: %s\n", user.GetUsername())
 					err := u.ChangePasswordFunc(user.GetUsername(), passwordWithNewEncoding)
 					if err != nil {
-						return true, &error2.ChangePasswordError{}
+						return true, user.GetUsername(), &error2.ChangePasswordError{}
 					}
 				}
 			}
 		}
 
-		return true, nil
+		return true, user.GetUsername(), nil
 
 	} else {
-		return false, errors.New("no getUserDetails function provided")
+		return false, "", errors.New("no getUserDetails function provided")
 	}
 }
