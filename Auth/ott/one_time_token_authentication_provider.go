@@ -2,7 +2,6 @@ package ott
 
 import (
 	"errors"
-	"fmt"
 	"github.com/ayushs-2k4/go-security/Auth"
 	"log/slog"
 	"os"
@@ -43,11 +42,6 @@ func (o *OneTimeTokenAuthenticationMethod) Authenticate() (bool, string, error) 
 		if err != nil {
 			return false, "", err
 		}
-
-		var authenticated *OneTimeTokenAuthenticationToken
-		authenticated = NewAuthenticatedToken(user)
-
-		fmt.Println(authenticated)
 
 		return true, user.GetUsername(), nil
 	}
