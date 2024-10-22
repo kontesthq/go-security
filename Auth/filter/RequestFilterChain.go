@@ -1,6 +1,10 @@
 package filter
 
-import "net/http"
+import (
+	"context"
+	"github.com/ayushs-2k4/go-security/Auth/security"
+	"net/http"
+)
 
 // RequestFilterChain manages filter execution for a single request.
 type RequestFilterChain struct {
@@ -9,11 +13,15 @@ type RequestFilterChain struct {
 }
 
 // DoFilter executes the filters one by one.
-func (chain *RequestFilterChain) DoFilter(req *http.Request, res http.ResponseWriter) error {
+func (chain *RequestFilterChain) DoFilter(ctx context.Context, req *http.Request, res http.ResponseWriter) error {
+	newCtx := security.GetSecurityContextHolder().GetContext(ctx)
+
 	if chain.index < len(chain.filters) {
 		filter := chain.filters[chain.index]
 		chain.index++
-		return filter.DoFilter(req, res, chain)
+		err := filter.DoFilter(newCtx, req, res, chain)
+
+		return err
 	}
 	return nil
 }

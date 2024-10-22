@@ -1,6 +1,7 @@
 package filter
 
 import (
+	"context"
 	"net/http"
 	"regexp"
 )
@@ -12,6 +13,7 @@ type FilterChainImpl struct {
 }
 
 func NewFilterChainImpl(filters []AuthenticationFilter) *FilterChainImpl {
+	filters = append(filters, NewAuthorizationFilter())
 	return &FilterChainImpl{
 		filters:   filters,
 		index:     0,
@@ -37,7 +39,7 @@ func (chain *FilterChainImpl) AddSkipPaths(paths ...string) error {
 	return nil
 }
 
-func (chain *FilterChainImpl) DoFilter(req *http.Request, res http.ResponseWriter) error {
+func (chain *FilterChainImpl) DoFilter(ctx context.Context, req *http.Request, res http.ResponseWriter) error {
 	// Check if the path should skip the entire filter chain
 	for _, skipPath := range chain.skipPaths {
 		if skipPath.MatchString(req.URL.Path) {
@@ -52,5 +54,5 @@ func (chain *FilterChainImpl) DoFilter(req *http.Request, res http.ResponseWrite
 	}
 
 	// Start filtering
-	return newChain.DoFilter(req, res)
+	return newChain.DoFilter(req.Context(), req, res)
 }
