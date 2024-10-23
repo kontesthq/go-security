@@ -38,8 +38,6 @@ func DoAuthenticateUsernameEmail(username string, password string) bool {
 
 	UsernamePToken := username_password.NewUsernamePasswordAuthenticationToken(username, password)
 
-	fmt.Println("UsernamePToken: ", UsernamePToken)
-
 	authentication, err := usernamePasswordAuthenticationMethod.Authenticate(UsernamePToken)
 
 	if err != nil {

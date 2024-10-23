@@ -45,12 +45,10 @@ func (u *UsernamePasswordAuthenticationProvider) Authenticate(authentication Aut
 		user, err := u.GetUserDetails(inputUsername)
 
 		if err != nil {
-			//return false, "", err
 			return nil, err
 		}
 
 		if user == nil {
-			//return false, "", &error2.UserNotFoundError{}
 			return nil, &error2.UserNotFoundError{}
 		}
 
@@ -58,7 +56,6 @@ func (u *UsernamePasswordAuthenticationProvider) Authenticate(authentication Aut
 
 		// check if password matches
 		if passwordMatches, err := u.DelegatingPasswordEncoder.Matches(inputPassword, dbPassword); err != nil || !passwordMatches {
-			//return false, "", &error2.IncorrectPasswordError{}
 			return nil, &error2.IncorrectPasswordError{}
 		}
 
@@ -75,17 +72,14 @@ func (u *UsernamePasswordAuthenticationProvider) Authenticate(authentication Aut
 					log.Printf("Upgrading encoding for user: %s\n", user.GetUsername())
 					err := u.ChangePasswordFunc(user.GetUsername(), passwordWithNewEncoding)
 					if err != nil {
-						//return true, user.GetUsername(), &error2.ChangePasswordError{}
 						return u.createSuccessAuthentication(user.GetUsername(), user.GetPassword()), &error2.ChangePasswordError{}
 					}
 				}
 			}
 		}
 
-		//return true, user.GetUsername(), nil
 		return u.createSuccessAuthentication(user.GetUsername(), user.GetPassword()), nil
 	} else {
-		//return false, "", errors.New("no getUserDetails function provided")
 		return nil, errors.New("no getUserDetails function provided")
 	}
 }
