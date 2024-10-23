@@ -3,8 +3,8 @@ package argon2
 import (
 	"crypto/rand"
 	"errors"
-	error3 "github.com/ayushs-2k4/go-security/Auth/PasswordEncoder/error"
-	error2 "github.com/ayushs-2k4/go-security/Auth/error"
+	error3 "github.com/kontesthq/go-security/Auth/PasswordEncoder/error"
+	error2 "github.com/kontesthq/go-security/Auth/error"
 	"golang.org/x/crypto/argon2"
 	"log"
 )

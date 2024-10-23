@@ -1,9 +1,9 @@
 package multi_ott_example
 
 import (
-	"github.com/ayushs-2k4/go-security/Auth"
-	error2 "github.com/ayushs-2k4/go-security/Auth/error"
-	"github.com/ayushs-2k4/go-security/internal/testing"
+	"github.com/kontesthq/go-security/Auth"
+	error2 "github.com/kontesthq/go-security/Auth/error"
+	"github.com/kontesthq/go-security/internal/testing"
 )
 
 // Mock user data for demonstration

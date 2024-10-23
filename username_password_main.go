@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/ayushs-2k4/go-security/Auth"
-	"github.com/ayushs-2k4/go-security/Auth/username_password"
-	"github.com/ayushs-2k4/go-security/internal/testing"
+	"github.com/kontesthq/go-security/Auth"
+	"github.com/kontesthq/go-security/Auth/username_password"
+	"github.com/kontesthq/go-security/internal/testing"
 	"log/slog"
 )
 
@@ -38,7 +38,7 @@ func DoAuthenticateUsernameEmail(username string, password string) bool {
 		},
 	)
 
-	isAuthenticated, err := usernamePasswordAuthenticationMethod.Authenticate()
+	isAuthenticated, _, err := usernamePasswordAuthenticationMethod.Authenticate()
 
 	if err != nil {
 		slog.Error("Error authenticating", slog.String("error", err.Error()))

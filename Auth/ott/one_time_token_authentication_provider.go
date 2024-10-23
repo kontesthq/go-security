@@ -1,8 +1,8 @@
 package ott
 
 import (
-	"github.com/ayushs-2k4/go-security/Auth"
-	error2 "github.com/ayushs-2k4/go-security/Auth/ott/error"
+	"github.com/kontesthq/go-security/Auth"
+	error2 "github.com/kontesthq/go-security/Auth/ott/error"
 	"log/slog"
 	"os"
 )

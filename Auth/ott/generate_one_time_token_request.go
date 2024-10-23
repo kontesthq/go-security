@@ -1,7 +1,7 @@
 package ott
 
 import (
-	error2 "github.com/ayushs-2k4/go-security/Auth/error"
+	error2 "github.com/kontesthq/go-security/Auth/error"
 )
 
 type GenerateOneTimeTokenRequest struct {

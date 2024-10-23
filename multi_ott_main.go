@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/ayushs-2k4/go-security/examples/multi_ott_example"
+	"github.com/kontesthq/go-security/examples/multi_ott_example"
 	"log"
 )
 

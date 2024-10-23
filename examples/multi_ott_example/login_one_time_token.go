@@ -1,8 +1,8 @@
 package multi_ott_example
 
 import (
-	"github.com/ayushs-2k4/go-security/Auth/ott"
-	error2 "github.com/ayushs-2k4/go-security/examples/multi_ott_example/error"
+	"github.com/kontesthq/go-security/Auth/ott"
+	error2 "github.com/kontesthq/go-security/examples/multi_ott_example/error"
 	"sync"
 )
 

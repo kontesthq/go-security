@@ -2,9 +2,9 @@ package username_password
 
 import (
 	"errors"
-	"github.com/ayushs-2k4/go-security/Auth"
-	"github.com/ayushs-2k4/go-security/Auth/PasswordEncoder"
-	error2 "github.com/ayushs-2k4/go-security/Auth/error"
+	"github.com/kontesthq/go-security/Auth"
+	"github.com/kontesthq/go-security/Auth/PasswordEncoder"
+	error2 "github.com/kontesthq/go-security/Auth/error"
 	"log"
 )
 

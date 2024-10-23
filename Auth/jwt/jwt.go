@@ -2,10 +2,10 @@ package jwt
 
 import (
 	"errors"
-	"github.com/ayushs-2k4/go-security/Auth/Store"
-	error2 "github.com/ayushs-2k4/go-security/Auth/jwt/error"
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
+	"github.com/kontesthq/go-security/Auth/Store"
+	error2 "github.com/kontesthq/go-security/Auth/jwt/error"
 	"log"
 	"net/http"
 	"time"

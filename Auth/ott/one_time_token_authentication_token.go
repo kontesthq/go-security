@@ -1,7 +1,7 @@
 package ott
 
 import (
-	"github.com/ayushs-2k4/go-security/Auth"
+	"github.com/kontesthq/go-security/Auth"
 )
 
 type OneTimeTokenAuthenticationToken struct {

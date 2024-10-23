@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	FromJava2 "github.com/ayushs-2k4/go-security/Auth/FromJava"
-	"github.com/ayushs-2k4/go-security/Auth/PasswordEncoder/bcrypt"
-	error2 "github.com/ayushs-2k4/go-security/Auth/error"
+	FromJava2 "github.com/kontesthq/go-security/Auth/FromJava"
+	"github.com/kontesthq/go-security/Auth/PasswordEncoder/bcrypt"
+	error2 "github.com/kontesthq/go-security/Auth/error"
 	"log"
 )
 
