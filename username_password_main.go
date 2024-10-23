@@ -9,13 +9,11 @@ import (
 )
 
 func main() {
-	DoAuthenticateUsernameEmail("ayush", "ayush")
+	DoAuthenticateUsernameEmail("ayush", "ayush_pswrd")
 }
 
 func DoAuthenticateUsernameEmail(username string, password string) bool {
-	usernamePasswordAuthenticationMethod := username_password.NewUsernamePasswordAuthenticationMethod(
-		username,
-		password,
+	usernamePasswordAuthenticationMethod := username_password.NewUsernamePasswordAuthenticationProvider(
 		nil,
 		true,
 		func(username string) (Auth.UserDetails, error) {
@@ -23,7 +21,7 @@ func DoAuthenticateUsernameEmail(username string, password string) bool {
 				return testing.TestUserPrincipal{
 					User: testing.TestUser{
 						Username: "ayush",
-						Password: "{argon2}$argon2id$v=19$m=16384,t=2,p=1$V3srpAFTpAbEKK14Yonp/w$6r5fPPWocuvpM5XuLv5buh+ZA+aOaNIzAK0wGuWo0qA",
+						Password: "ayush_pswrd",
 						Leetcode: "ayush",
 					},
 				}, nil
@@ -38,18 +36,22 @@ func DoAuthenticateUsernameEmail(username string, password string) bool {
 		},
 	)
 
-	isAuthenticated, _, err := usernamePasswordAuthenticationMethod.Authenticate()
+	UsernamePToken := username_password.NewUsernamePasswordAuthenticationToken(username, password)
+
+	fmt.Println("UsernamePToken: ", UsernamePToken)
+
+	authentication, err := usernamePasswordAuthenticationMethod.Authenticate(UsernamePToken)
 
 	if err != nil {
 		slog.Error("Error authenticating", slog.String("error", err.Error()))
 		return false
 	}
 
-	if isAuthenticated {
+	if authentication.IsAuthenticated() {
 		fmt.Println("Authenticated")
 	} else {
 		fmt.Println("Not authenticated")
 	}
 
-	return isAuthenticated
+	return authentication.IsAuthenticated()
 }
