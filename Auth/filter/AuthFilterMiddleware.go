@@ -11,7 +11,7 @@ func AuthFilterMiddleware(chain FilterChain, next http.Handler) http.Handler {
 
 		if err != nil {
 			log.Printf("Authentication failed: %v", err)
-			w.WriteHeader(http.StatusUnauthorized)
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
 

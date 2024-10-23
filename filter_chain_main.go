@@ -55,7 +55,6 @@ func (t *TestFilter2) DoFilter(ctx context.Context, req *http.Request, res http.
 	// Check for a specific header in the request
 	if req.Header.Get("X-Custom-Header") == "" {
 		// If the header is not present, respond with an error
-		http.Error(res, "Missing X-Custom-Header", http.StatusBadRequest)
 		return chain.DoFilter(ctx, req, res) // Continue the filter chain
 	}
 
