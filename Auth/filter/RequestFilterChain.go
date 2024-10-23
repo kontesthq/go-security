@@ -2,7 +2,7 @@ package filter
 
 import (
 	"context"
-	"github.com/ayushs-2k4/go-security/Auth/security"
+	"github.com/kontesthq/go-security/Auth/security"
 	"net/http"
 )
 

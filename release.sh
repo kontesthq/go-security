@@ -21,7 +21,7 @@ else
 fi
 
 # Set GOPROXY and list the module to verify the tag
-GOPROXY=proxy.golang.org go list -m github.com/ayushs-2k4/go-security@"$VERSION"
+GOPROXY=proxy.golang.org go list -m github.com/kontesthq/go-security@"$VERSION"
 
 # Check if the go list command was successful
 if [ $? -eq 0 ]; then

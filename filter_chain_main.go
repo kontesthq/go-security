@@ -3,8 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/ayushs-2k4/go-security/Auth/filter"
-	"github.com/ayushs-2k4/go-security/Auth/security"
+	"github.com/kontesthq/go-security/Auth/filter"
+	"github.com/kontesthq/go-security/Auth/security"
 	"net/http"
 )
 

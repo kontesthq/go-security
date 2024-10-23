@@ -3,9 +3,9 @@ package PasswordEncoder
 import (
 	"errors"
 	"fmt"
-	"github.com/ayushs-2k4/go-security/Auth/PasswordEncoder/argon2"
-	"github.com/ayushs-2k4/go-security/Auth/PasswordEncoder/bcrypt"
-	"github.com/ayushs-2k4/go-security/Auth/PasswordEncoder/scrypt"
+	"github.com/kontesthq/go-security/Auth/PasswordEncoder/argon2"
+	"github.com/kontesthq/go-security/Auth/PasswordEncoder/bcrypt"
+	"github.com/kontesthq/go-security/Auth/PasswordEncoder/scrypt"
 	"strings"
 )
 
