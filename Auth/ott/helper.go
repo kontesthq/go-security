@@ -15,6 +15,6 @@ func GenerateOneTimeToken(user Auth.UserDetails, tokenService OneTimeTokenServic
 	oneTime := tokenService.Generate(*request)
 
 	// Associate the token with the user
-	oneTimeToken := NewUnauthenticatedTokenWithUser(user, oneTime.GetTokenValue())
+	oneTimeToken := NewOneTimeUnauthenticatedTokenWithUser(user, oneTime.GetTokenValue())
 	return oneTimeToken, nil
 }

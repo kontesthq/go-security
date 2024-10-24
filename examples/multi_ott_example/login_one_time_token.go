@@ -33,7 +33,7 @@ func (o *LoginOneTimeToken) GenerateToken(username string) (*ott.OneTimeTokenAut
 }
 
 func (o *LoginOneTimeToken) DoAuthenticateForgotPassword(providedToken string) (string, error) {
-	oneTimeToken := ott.NewUnauthenticatedToken(providedToken)
+	oneTimeToken := ott.NewOneTimeUnauthenticatedToken(providedToken)
 
 	oneTimeTokenService := *o.getOneTimeTokenService()
 

@@ -10,8 +10,25 @@ type OneTimeTokenAuthenticationToken struct {
 	authenticated bool
 }
 
-// NewUnauthenticatedToken Constructor for unauthenticated token
-func NewUnauthenticatedToken(tokenValue string) *OneTimeTokenAuthenticationToken {
+func (t *OneTimeTokenAuthenticationToken) GetCredentials() interface{} {
+	return t.tokenValue
+}
+
+func (t *OneTimeTokenAuthenticationToken) GetDetails() interface{} {
+	return t.tokenValue
+}
+
+func (t *OneTimeTokenAuthenticationToken) GetPrincipal() interface{} {
+	return t.user
+}
+
+func (t *OneTimeTokenAuthenticationToken) SetAuthenticated(isAuthenticated bool) error {
+	t.authenticated = isAuthenticated
+	return nil
+}
+
+// NewOneTimeUnauthenticatedToken Constructor for unauthenticated token
+func NewOneTimeUnauthenticatedToken(tokenValue string) *OneTimeTokenAuthenticationToken {
 	return &OneTimeTokenAuthenticationToken{
 		user:          nil,
 		tokenValue:    tokenValue,
@@ -19,8 +36,8 @@ func NewUnauthenticatedToken(tokenValue string) *OneTimeTokenAuthenticationToken
 	}
 }
 
-// NewUnauthenticatedTokenWithUser Constructor for unauthenticated token with user
-func NewUnauthenticatedTokenWithUser(user Auth.UserDetails, tokenValue string) *OneTimeTokenAuthenticationToken {
+// NewOneTimeUnauthenticatedTokenWithUser Constructor for unauthenticated token with user
+func NewOneTimeUnauthenticatedTokenWithUser(user Auth.UserDetails, tokenValue string) *OneTimeTokenAuthenticationToken {
 	return &OneTimeTokenAuthenticationToken{
 		user:          user,
 		tokenValue:    tokenValue,
@@ -28,8 +45,8 @@ func NewUnauthenticatedTokenWithUser(user Auth.UserDetails, tokenValue string) *
 	}
 }
 
-// NewAuthenticatedToken Constructor for authenticated token
-func NewAuthenticatedToken(user Auth.UserDetails) *OneTimeTokenAuthenticationToken {
+// NewOneTimeAuthenticatedToken Constructor for authenticated token
+func NewOneTimeAuthenticatedToken(user Auth.UserDetails) *OneTimeTokenAuthenticationToken {
 	return &OneTimeTokenAuthenticationToken{
 		user:          user,
 		authenticated: true,

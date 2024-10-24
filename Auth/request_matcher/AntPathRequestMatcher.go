@@ -53,11 +53,7 @@ func NewAntPathRequestMatcherWithPatternAndHttpMethod(pattern string, httpMethod
 		panic("httpMethod cannot be empty")
 	}
 
-	return &AntPathRequestMatcher{
-		pattern:       pattern,
-		httpMethod:    httpMethod,
-		caseSensitive: true,
-	}
+	return NewAntPathRequestMatcherWithPatternAndHttpMethodAndCaseSensitiveAndMatcher(pattern, httpMethod, true)
 }
 
 // NewAntPathRequestMatcherWithPatternAndHttpMethodAndCaseSensitive creates a matcher with the specific pattern, HTTP method and case sensitivity.
