@@ -80,7 +80,7 @@ func main() {
 	//holder := security.GetSecurityContextHolder()
 	//fmt.Println(holder)
 
-	filterChain := filter.NewFilterChainImpl([]filter.AuthenticationFilter{&TestFilter1{}, &TestFilter2{}})
+	filterChain := filter.NewFilterChainImpl([]filter.OncePerRequestFilter{&TestFilter1{}, &TestFilter2{}})
 
 	http.Handle("/", filter.AuthFilterMiddleware(filterChain, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Request passed through filters"))

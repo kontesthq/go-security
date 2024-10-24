@@ -8,7 +8,7 @@ import (
 
 // RequestFilterChain manages filter execution for a single request.
 type RequestFilterChain struct {
-	filters []AuthenticationFilter
+	filters []OncePerRequestFilter
 	index   int
 }
 

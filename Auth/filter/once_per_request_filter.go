@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-// AuthenticationFilter interface for custom filters.
-type AuthenticationFilter interface {
+// OncePerRequestFilter interface for custom filters.
+type OncePerRequestFilter interface {
 	DoFilter(ctx context.Context, req *http.Request, res http.ResponseWriter, chain FilterChain) error
 }

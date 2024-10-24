@@ -7,12 +7,12 @@ import (
 )
 
 type FilterChainImpl struct {
-	filters   []AuthenticationFilter
+	filters   []OncePerRequestFilter
 	index     int
 	skipPaths []*regexp.Regexp
 }
 
-func NewFilterChainImpl(filters []AuthenticationFilter) *FilterChainImpl {
+func NewFilterChainImpl(filters []OncePerRequestFilter) *FilterChainImpl {
 	filters = append(filters, NewAuthorizationFilter())
 	return &FilterChainImpl{
 		filters:   filters,
